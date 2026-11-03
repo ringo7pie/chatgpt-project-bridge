@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "projectName": "chatgpt-project-bridge",
+  "contextFile": "CHATGPT_PROJECT_CONTEXT.md",
+  "statusFile": "CHATGPT_PROJECT_STATUS.md",
+  "profileName": "chatgpt-chatgpt-project-bridge-c6e60971",
+  "tunnelId": null,
+  "healthPort": null,
+  "allowFiles": [
+    "CHATGPT_PROJECT_CONTEXT.md",
+    "CHATGPT_PROJECT_STATUS.md",
+    "README.md"
+  ],
+  "maxDocumentBytes": 524288,
+  "gitExposure": {
+    "commitSubjects": true,
+    "paths": true
+  },
+  "detailExposure": {
+    "branchNames": true,
+    "diffExcerpts": true,
+    "sourceText": true
+  },
+  "allowDirectories": [
+    {
+      "path": "knowledge/10-silver",
+      "recursive": true
+    }
+  ],
+  "denyDirectories": [
+    ".git",
+    ".codex",
+    ".claude",
+    "node_modules",
+    "Saved",
+    "Prompts",
+    "Documents",
+    "Build",
+    "Builds",
+    "dist",
+    "out",
+    "zzz-Temp",
+    "knowledge/20-bronze"
+  ],
+  "claudeCode": {
+    "enabled": true,
+    "allowedCommands": [
+      "node scripts/security-selftest.mjs",
+      "node scripts/server-boundary-selftest.mjs",
+      "node scripts/snapshot-hooks-selftest.mjs",
+      "node scripts/snapshot-publisher-selftest.mjs",
+      "node scripts/tools-selftest.mjs",
+      "node scripts/git-tools-selftest.mjs",
+      "node scripts/analysis-selftest.mjs",
+      "node scripts/selftest.mjs",
+      "node scripts/source-tools-selftest.mjs",
+      "node scripts/source-tools-selftest.mjs *",
+      "node scripts/claude-jobs-selftest.mjs",
+      "node scripts/claude-jobs-selftest.mjs *",
+      "node scripts/permission-cli-selftest.mjs",
+      "node scripts/permission-cli-selftest.mjs *",
+      "python scripts/gui-selftest-windows-static.py"
+    ]
+  }
+}

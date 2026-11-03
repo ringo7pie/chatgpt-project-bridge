@@ -1,0 +1,7 @@
+interface:
+  display_name: "ChatGPT Project Bridge"
+  short_description: "Install and connect local project bridges (read-only by default)"
+  default_prompt: "Use $chatgpt-project-bridge to install or connect this local project to ChatGPT with an explicit read-only allowlist."
+
+policy:
+  allow_implicit_invocation: false

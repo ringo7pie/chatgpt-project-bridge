@@ -1,0 +1,4 @@
+# ナレッジベースの原本層と生成物層。毎日の差分がコミットに載るのを防ぐ。
+# 10-silver/ と 00-system/ はコミット対象。
+knowledge/20-bronze/
+knowledge/30-gold/

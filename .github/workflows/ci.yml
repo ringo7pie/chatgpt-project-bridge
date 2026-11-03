@@ -1,0 +1,146 @@
+# Runs every self-test on GitHub-hosted runners. The suites create their fixtures in temporary folders,
+# need no network, and use a fake `claude`, so nothing here touches a real ChatGPT tunnel or Claude Code.
+# A suite fails the job through its exit code; SKIP counts differ between machines and are not compared.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ubuntu:
+    name: Ubuntu / Node.js ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 24]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install GTK, Xvfb and Japanese fonts for the GUI tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-gi gir1.2-gtk-3.0 xvfb fonts-noto-cjk
+      - name: Remove group and other write permission (the tools refuse group-writable scripts)
+        run: chmod -R go-w .
+      - name: Security boundary
+        timeout-minutes: 10
+        run: node scripts/security-selftest.mjs
+      - name: Server boundary (links, FIFOs, limits)
+        timeout-minutes: 10
+        run: node scripts/server-boundary-selftest.mjs
+      - name: Linux-specific security
+        timeout-minutes: 10
+        run: node scripts/linux-security-selftest.mjs
+      - name: Self-test against this repository
+        timeout-minutes: 10
+        run: node scripts/selftest.mjs
+      - name: Read tools (2.5.0)
+        timeout-minutes: 10
+        run: node scripts/tools-selftest.mjs
+      - name: Git tools
+        timeout-minutes: 10
+        run: node scripts/git-tools-selftest.mjs
+      - name: Project analysis
+        timeout-minutes: 10
+        run: node scripts/analysis-selftest.mjs
+      - name: Source-reading tools (2.6.0)
+        timeout-minutes: 10
+        run: node scripts/source-tools-selftest.mjs
+      - name: Claude Code jobs (fake claude)
+        timeout-minutes: 10
+        run: node scripts/claude-jobs-selftest.mjs
+      - name: Permission switching through the real CLI
+        timeout-minutes: 10
+        run: node scripts/permission-cli-selftest.mjs
+      - name: Save-on-exit hooks
+        timeout-minutes: 10
+        run: node scripts/snapshot-hooks-selftest.mjs
+      - name: Snapshot publisher
+        timeout-minutes: 10
+        run: node scripts/snapshot-publisher-selftest.mjs
+      - name: Snapshot relay
+        timeout-minutes: 10
+        run: node scripts/snapshot-relay-selftest.mjs
+      - name: GUI logic (static checks of the PowerShell GUI)
+        timeout-minutes: 10
+        run: /usr/bin/python3 scripts/gui-selftest-windows-static.py
+      - name: Add-project workflow (end to end, temporary HOME)
+        timeout-minutes: 10
+        run: BRIDGE_TEST_NODE="$(command -v node)" /usr/bin/python3 scripts/workflow-selftest.py
+      - name: GTK GUI (headless, every screen item must run)
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          BRIDGE_TEST_NODE="$(command -v node)" xvfb-run -a -s "-screen 0 1920x1080x24" /usr/bin/python3 scripts/gui-selftest.py | tee "$RUNNER_TEMP/gui-selftest.log"
+          if grep -q '^SKIP' "$RUNNER_TEMP/gui-selftest.log"; then
+            echo "::error::Some GUI test items were skipped (no display, GTK, or Node.js)."
+            exit 1
+          fi
+
+  windows:
+    name: Windows / Node.js 24
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Use the long form of the temporary folder (the default can be an 8.3 short path)
+        run: '"TEMP=$env:RUNNER_TEMP", "TMP=$env:RUNNER_TEMP" | Add-Content -Path $env:GITHUB_ENV'
+      - name: Security boundary
+        timeout-minutes: 10
+        run: node scripts/security-selftest.mjs
+      - name: Server boundary (links, junctions, limits)
+        timeout-minutes: 10
+        run: node scripts/server-boundary-selftest.mjs
+      - name: Self-test against this repository
+        timeout-minutes: 10
+        run: node scripts/selftest.mjs
+      - name: Read tools (2.5.0)
+        timeout-minutes: 10
+        run: node scripts/tools-selftest.mjs
+      - name: Git tools
+        timeout-minutes: 10
+        run: node scripts/git-tools-selftest.mjs
+      - name: Project analysis
+        timeout-minutes: 10
+        run: node scripts/analysis-selftest.mjs
+      - name: Source-reading tools (2.6.0)
+        timeout-minutes: 10
+        run: node scripts/source-tools-selftest.mjs
+      - name: Claude Code jobs (fake claude)
+        timeout-minutes: 10
+        run: node scripts/claude-jobs-selftest.mjs
+      - name: Permission switching through the real CLI (PowerShell 7)
+        timeout-minutes: 10
+        run: node scripts/permission-cli-selftest.mjs
+      - name: Save-on-exit hooks
+        timeout-minutes: 10
+        run: node scripts/snapshot-hooks-selftest.mjs
+      - name: Snapshot publisher
+        timeout-minutes: 10
+        run: node scripts/snapshot-publisher-selftest.mjs
+      - name: GUI logic (static checks of the PowerShell GUI)
+        timeout-minutes: 10
+        run: python scripts/gui-selftest-windows-static.py

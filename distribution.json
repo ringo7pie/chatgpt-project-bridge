@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "version": "2.10.1",
+  "files": [
+    {
+      "path": "SKILL.md",
+      "mode": "0644"
+    },
+    {
+      "path": "distribution.json",
+      "mode": "0644"
+    },
+    {
+      "path": "dependencies.lock.json",
+      "mode": "0644"
+    },
+    {
+      "path": "agents/openai.yaml",
+      "mode": "0644"
+    },
+    {
+      "path": "assets/CHATGPT_PROJECT_CONTEXT.template.md",
+      "mode": "0644"
+    },
+    {
+      "path": "assets/CHATGPT_PROJECT_STATUS.template.md",
+      "mode": "0644"
+    },
+    {
+      "path": "assets/gui-help.ja.json",
+      "mode": "0644"
+    },
+    {
+      "path": "references/gui-windows-check.md",
+      "mode": "0644"
+    },
+    {
+      "path": "references/setup.md",
+      "mode": "0644"
+    },
+    {
+      "path": "references/インストールマニュアル.html",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/add-project.ps1",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/add-project.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/gui-selftest-windows-static.py",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/gui-selftest.py",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/hub-add.ps1",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/hub-add.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/install-ubuntu.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/install-windows.ps1",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/linux-security-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/project-bridge-gui.ps1",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/project-bridge-gui.py",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/project-bridge.ps1",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/project-bridge.py",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/project-bridge.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/security-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/server.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/workflow-selftest.py",
+      "mode": "0755"
+    },
+    {
+      "path": "README.md",
+      "mode": "0644"
+    },
+    {
+      "path": "README.ja.md",
+      "mode": "0644"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "0644"
+    },
+    {
+      "path": "assets/CHATGPT_PROJECT_HANDOFF.template.md",
+      "mode": "0644"
+    },
+    {
+      "path": "references/offline-snapshots.md",
+      "mode": "0644"
+    },
+    {
+      "path": "references/offline-relay.md",
+      "mode": "0644"
+    },
+    {
+      "path": "references/CHANGELOG-2.4.0.md",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/snapshot-common.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-publisher.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/offline-bridge.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-hooks.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-relay.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/server-boundary-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-hooks-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-publisher-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/snapshot-relay-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-tools-common.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-tool-definitions.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-git.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-analysis.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/git-tools-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/analysis-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/tools-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/tools-smoke.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-source-io.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-source.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/source-tools-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-claude-jobs.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/claude-job-runner.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/claude-jobs-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/bridge-permission.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "scripts/permission-cli-selftest.mjs",
+      "mode": "0755"
+    },
+    {
+      "path": "SHA256SUMS.txt",
+      "mode": "0644"
+    }
+  ]
+}

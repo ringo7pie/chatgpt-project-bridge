@@ -1,0 +1,1135 @@
+{
+  "schemaVersion": 1,
+  "groups": {
+    "easy": "かんたん",
+    "hub": "ハブ方式",
+    "legacy": "従来方式",
+    "maintainer": "保守者向け"
+  },
+  "actions": {
+    "init": {
+      "label": "プロジェクトを初期化",
+      "group": "legacy",
+      "summary": "プロジェクトに設定ファイルと 2 つの文書（足場 / scaffold）を作り、自己試験を実行します。",
+      "when": "新しいプロジェクトを ChatGPT に読ませる準備を、手順を分けて進めたいときに使います。",
+      "requires": "プロジェクトのフォルダーが存在し、Node.js 18 以上が入っていること。",
+      "effect": ".chatgpt-project-bridge.json と文書 2 つ（CONTEXT・STATUS）を作ります。既存の文書は残し、状態文書の Git 自動収集欄だけ更新します。",
+      "next": "公開範囲を確認して承認し、Tunnel を設定します。まとめて進めるなら「プロジェクトを追加」を使います。",
+      "options": [
+        "project-root",
+        "project-name",
+        "force"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "設定ファイルが既にあると失敗します。force で置き換えると公開範囲・Tunnel ID などが初期値に戻ります。Tunnel と承認は行いません。",
+      "src": [
+        "project-bridge.py:402 initialize_project",
+        "project-bridge.py:1634 main(init)",
+        "project-bridge.ps1:379 Initialize-ProjectBridge",
+        "project-bridge.ps1:1451 switch(Init)",
+        "project-bridge.py:345 update_project_status",
+        "project-bridge.py:444 test_project",
+        "SKILL.md:50"
+      ]
+    },
+    "configure-tunnel": {
+      "label": "Tunnel を設定",
+      "group": "legacy",
+      "summary": "Tunnel（ChatGPT とこの PC をつなぐ OpenAI の中継）用の設定ファイル（プロファイル / profile）を作り、Tunnel ID を記録します。",
+      "when": "Platform で Tunnel を作成したあと、従来方式でプロジェクトと Tunnel を結び付けるときに使います。",
+      "requires": "init 済みであること。Tunnel Client と Node.js が入っていること。Platform で作った Tunnel ID があること。",
+      "effect": "Tunnel Client の設定ファイルを作り、.chatgpt-project-bridge.json に profileName・tunnelId・healthPort を書き込みます。承認はしません。",
+      "next": "キーを保存し、公開範囲を承認してから、診断と Tunnel の起動へ進みます。",
+      "options": [
+        "project-root",
+        "profile",
+        "tunnel-id",
+        "tunnel-client-path",
+        "health-port",
+        "force"
+      ],
+      "required": [
+        "project-root",
+        "tunnel-id"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "別の Tunnel ID や別フォルダーを参照する既存の設定は拒否されます。Tunnel Client の実行中は再設定できません。",
+      "src": [
+        "project-bridge.py:612 configure_tunnel",
+        "project-bridge.py:1637 main(configure-tunnel)",
+        "project-bridge.ps1:578 Configure-TunnelProfile",
+        "project-bridge.ps1:1455 switch(ConfigureTunnel)",
+        "references/setup.md:289"
+      ]
+    },
+    "save-key": {
+      "label": "キーを保存",
+      "group": "legacy",
+      "summary": "Runtime API Key を保存します。Tunnel Client が OpenAI へ接続するときに使うキーです。",
+      "when": "従来方式で、Tunnel の設定のあとにキーを初めて保存するときに使います。",
+      "requires": "Tunnel の設定が済んでいること。Platform で Runtime API Key を作成してあること。",
+      "effect": "キーは別の端末窓（Windows は別コンソール）で入力します。この画面には入力しません。Ubuntu は 0600 のファイル、Windows は DPAPI で暗号化して保存します。",
+      "next": "診断で設定を確認します。",
+      "options": [
+        "project-root",
+        "profile",
+        "replace-key"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [
+        "key"
+      ],
+      "foreground": false,
+      "caution": "Ubuntu のキーファイルは暗号化されません。別の PC へコピーせず、移行先で入力し直します。既にキーがあると失敗します。",
+      "src": [
+        "project-bridge.py:288 save_runtime_key",
+        "project-bridge.py:300 save_profile_runtime_key",
+        "project-bridge.py:1639 main(save-key)",
+        "project-bridge.ps1:626 Save-RuntimeKey",
+        "project-bridge.ps1:637 Save-ProfileRuntimeKey",
+        "project-bridge.ps1:1458 switch(SaveKey)",
+        "SKILL.md:45"
+      ]
+    },
+    "update": {
+      "label": "状態文書を更新",
+      "group": "legacy",
+      "summary": "状態文書の「Git 自動収集」欄を、現在の Git の状態で更新します。",
+      "when": "ChatGPT に最新の状態を読ませたいとき（重要な相談の前など）に使います。",
+      "requires": "init 済みで、状態文書（CHATGPT_PROJECT_STATUS.md）があること。",
+      "effect": "状態文書の自動収集欄だけを書き換えます。コミット件名とサブモジュールのパスは、公開設定（gitExposure）で許可したときだけ書きます。",
+      "next": "ChatGPT の新しいチャットで、状態が読めることを確かめます。",
+      "options": [
+        "project-root"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "Git の状態は実行した時点のものです。自動では更新されません。",
+      "src": [
+        "project-bridge.py:345 update_project_status",
+        "project-bridge.py:1641 main(update)",
+        "project-bridge.ps1:293 Update-ProjectStatus",
+        "project-bridge.ps1:1461 switch(Update)",
+        "SKILL.md:48"
+      ]
+    },
+    "test": {
+      "label": "自己試験",
+      "group": "legacy",
+      "summary": "MCP サーバーの自己試験（self-test）と、公開境界（秘密のファイルを渡さない仕組み）の自己試験を実行します。",
+      "when": "設定を変えたあとや問題が起きたときに、手元でサーバーが正しく動くかを確かめます。",
+      "requires": "init 済みであること。Node.js 18 以上が入っていること。",
+      "effect": "プロジェクトのファイルは書き換えません（一時フォルダーだけ使い、終了時に消します）。Tunnel の稼働・ツール検出・実呼び出しは確かめません。",
+      "next": "成功したら、公開範囲を確認して承認します。",
+      "options": [
+        "project-root"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "自己試験の成功は、ChatGPT から読めることの証明ではありません。後の段階は別に確かめます。",
+      "src": [
+        "project-bridge.py:444 test_project",
+        "project-bridge.py:1643 main(test)",
+        "project-bridge.ps1:425 Test-ProjectBridge",
+        "project-bridge.ps1:1464 switch(Test)",
+        "SKILL.md:66",
+        "references/setup.md:388"
+      ]
+    },
+    "doctor": {
+      "label": "診断",
+      "group": "legacy",
+      "summary": "保存済みの Tunnel 設定を公式の診断（doctor）で確かめ、公開範囲の承認状態も表示します。",
+      "when": "起動の前に、設定やキーの参照が正しいかを確かめたいときに使います。",
+      "requires": "Tunnel の設定が済み、Tunnel Client が入っていること。Windows はキーの保存も必要です。",
+      "effect": "設定と承認は書き換えません。確かめるのはプロファイル・キー参照・MCP コマンドの静的な診断と承認状態だけで、自己試験・Tunnel の稼働・ツール検出・実呼び出しは確かめません。",
+      "next": "未承認なら公開範囲を承認します。問題がなければ Tunnel を起動します。",
+      "options": [
+        "project-root",
+        "profile",
+        "tunnel-client-path"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "公開範囲が未承認でも警告を出すだけで成功（終了コード 0）になります。成功は承認済みの意味ではありません。",
+      "src": [
+        "project-bridge.py:700 doctor",
+        "project-bridge.py:1645 main(doctor)",
+        "project-bridge.ps1:704 Invoke-BridgeDoctor",
+        "project-bridge.ps1:1467 switch(Doctor)",
+        "references/setup.md:390"
+      ]
+    },
+    "start": {
+      "label": "Tunnel を起動",
+      "group": "legacy",
+      "summary": "公開範囲の承認を確かめ、Tunnel Client を起動して、プロジェクトを ChatGPT から読める状態にします。",
+      "when": "従来方式で、ChatGPT にプロジェクトを読ませる間は、起動したままにします。",
+      "requires": "Tunnel の設定とキーの保存が済んでいること。",
+      "effect": "未承認または変更ありなら、公開範囲を表示して承認を求め、承認を保存します。そのあと Tunnel Client を前面（foreground）で動かし続けます。",
+      "next": "起動したままにして、ChatGPT でツールの検出と実際の呼び出しを確かめます。終了は、この画面ではカードの「停止」ボタン（CLI では Ctrl+C）です。",
+      "options": [
+        "project-root",
+        "profile",
+        "tunnel-client-path",
+        "exposure-sha256"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [
+        "approval"
+      ],
+      "foreground": true,
+      "caution": "終了せず動き続けます。同じプロファイルが起動済みなら、状態を表示するだけで成功になります。Ubuntu は Ctrl+C で終了コード 130 です。設定に制御文字などが含まれていると承認できません。",
+      "src": [
+        "project-bridge.py:725 start",
+        "project-bridge.py:736 start_profile_tunnel",
+        "project-bridge.py:1647 main(start)",
+        "project-bridge.ps1:721 Start-BridgeTunnel",
+        "project-bridge.ps1:732 Start-ProfileTunnel",
+        "project-bridge.ps1:1470 switch(Start)"
+      ]
+    },
+    "status": {
+      "label": "稼働状態を表示",
+      "group": "legacy",
+      "summary": "Tunnel Client の管理画面（health）から、稼働状態を表示します。",
+      "when": "起動したあとに、Tunnel がつながっているかを確かめたいときに使います。",
+      "requires": "init と Tunnel の設定が済んでいて、Tunnel Client が起動していること。",
+      "effect": "何も書き換えません。確かめるのは「Tunnel の稼働」だけです。自己試験・ツール検出・実呼び出しは確かめません。",
+      "next": "ChatGPT の新しいチャットで、ツールの検出と実際の呼び出しを確かめます。",
+      "options": [
+        "project-root"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "Tunnel Client が停止中だとエラーで終了します。稼働中の表示は、ChatGPT で読めることの証明ではありません。",
+      "src": [
+        "project-bridge.py:772 show_status",
+        "project-bridge.py:778 show_profile_status",
+        "project-bridge.py:1649 main(status)",
+        "project-bridge.ps1:663 Show-BridgeStatus",
+        "project-bridge.ps1:673 Show-ProfileStatus",
+        "project-bridge.ps1:1473 switch(Status)",
+        "SKILL.md:66"
+      ]
+    },
+    "add-project": {
+      "label": "プロジェクトを追加（従来方式）",
+      "group": "legacy",
+      "summary": "足場の作成から公開範囲の承認、Tunnel の設定、キーの保存、診断、起動までを順に進めます。",
+      "when": "1 プロジェクトに専用の Tunnel を割り当てる従来方式で、初めて設定するときに使います。",
+      "requires": "Platform で作った Tunnel ID。Runtime API Key（初回のみ）。Node.js 18 以上と Tunnel Client が入っていること。",
+      "effect": "承認を得るまで Tunnel とキーは変えません。キーは別の端末窓（Windows は別コンソール）で入力します。この画面には入力しません。",
+      "next": "ChatGPT の Plugins 画面でアプリを作り、新しいチャットでツールの検出と実際の呼び出しを確かめます。",
+      "options": [
+        "project-root",
+        "project-name",
+        "profile",
+        "tunnel-id",
+        "tunnel-client-path",
+        "no-browser",
+        "no-start",
+        "force-reconfigure",
+        "replace-key",
+        "exposure-sha256"
+      ],
+      "required": [
+        "project-root",
+        "tunnel-id"
+      ],
+      "platformOnly": {},
+      "interactive": [
+        "key",
+        "approval"
+      ],
+      "foreground": true,
+      "caution": "--no-start を付けない場合、最後に Tunnel Client が前面で動き続け、終了しません。プロジェクト名を省略して設定も無いと、Ubuntu は入力を求めます。設定に制御文字などが含まれていると承認できません。",
+      "src": [
+        "project-bridge.py:828 add_project",
+        "project-bridge.py:1651 main(add-project)",
+        "project-bridge.ps1:754 Add-ChatGptProject",
+        "project-bridge.ps1:1476 switch(AddProject)",
+        "references/setup.md:119",
+        "SKILL.md:14"
+      ]
+    },
+    "approve": {
+      "label": "公開範囲を承認",
+      "group": "legacy",
+      "summary": "公開範囲（exposure）の全項目と指紋（SHA-256）を表示し、承認すると承認を保存します。",
+      "when": "公開範囲を変更したあとや、未承認のプロジェクトを公開してよいと判断したときに使います。",
+      "requires": "init 済みであること。Node.js 18 以上が入っていること。",
+      "effect": "承認の記録を、プロジェクトの外にある approvals フォルダーへ保存します。プロジェクトのファイルは書き換えません。",
+      "next": "Tunnel が動いていれば、承認した公開範囲の文書が ChatGPT から読めるようになります。ハブには再起動なしで反映されます。",
+      "options": [
+        "project-root",
+        "profile",
+        "exposure-sha256"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [
+        "approval"
+      ],
+      "foreground": false,
+      "caution": "内容を読んでから承認します。すでに承認済みなら、何もせず成功になります。設定に制御文字などが含まれていると承認できません。",
+      "src": [
+        "project-bridge.py:550 confirm_exposure",
+        "project-bridge.py:525 show_exposure_details",
+        "project-bridge.py:1653 main(approve)",
+        "project-bridge.ps1:495 Confirm-BridgeExposure",
+        "project-bridge.ps1:477 Show-ExposureDetails",
+        "project-bridge.ps1:1479 switch(Approve)",
+        "SKILL.md:41"
+      ]
+    },
+    "show-exposure": {
+      "label": "公開範囲を確認",
+      "group": "legacy",
+      "summary": "公開範囲（exposure）・指紋（SHA-256）・承認状態・前回承認との差分を、JSON で出力します。",
+      "when": "add-project や hub-add の承認の前に、何が公開されるかを確認するときに使います。",
+      "requires": "init 済みであること（設定ファイルがあること）。Node.js 18 以上が入っていること。",
+      "effect": "読み取り専用で、何も書き込みません（承認ファイルもプロジェクトの設定も変更しません）。承認ファイルに記録されたフォルダー（approvedProjectRoot）も出力します。",
+      "next": "内容を読んで問題がなければ承認します（GUI では承認ダイアログが指紋を渡します）。",
+      "options": [
+        "project-root",
+        "profile"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "承認状態は、未承認・承認済み・変更あり（前回の承認から公開範囲が変わった）のどれかです。",
+      "src": [
+        "project-bridge.py:605 show_exposure",
+        "project-bridge.py:576 collect_exposure_report",
+        "project-bridge.py:1656 main(show-exposure)",
+        "project-bridge.ps1:531 Get-ExposureReport",
+        "project-bridge.ps1:1484 switch(ShowExposure)",
+        "project-bridge.py:482 get_exposure",
+        "project-bridge.ps1:443 Get-BridgeExposure"
+      ]
+    },
+    "set-permission": {
+      "label": "権限を切り替え（ソース・Claude Code）",
+      "group": "hub",
+      "summary": "プロジェクトごとに、ChatGPT からのソースの読み取りと Claude Code の起動を On / Off し、設定の変更と承認を 1 つの操作で行います。指紋を付けずに実行すると、何も書かずに変更後の公開範囲を表示するだけです。",
+      "when": "普通は、かんたんタブの一覧のボタンから使います。このカードは、変更後の公開範囲を確かめるだけに使えます（書き込みは、承認ダイアログを経る一覧のボタンから行います）。",
+      "requires": "init 済みであること（設定ファイルがあること）。Node.js 18 以上が入っていること。",
+      "effect": "指紋なしでは何も書きません（変更後の公開範囲と指紋を JSON で出すだけ）。指紋付きでは、変更後の指紋と一致するときだけ、プロジェクトの設定ファイルを書き換え、承認を保存します。途中で失敗すると、設定を元のバイト列に戻します。",
+      "next": "承認が保存されると、起動中のハブにも再起動なしで反映されます。",
+      "options": [
+        "project-root",
+        "profile",
+        "source-read",
+        "claude-code",
+        "allowed-command",
+        "exposure-sha256"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "Claude Code を On にすると、ChatGPT がこの PC の Claude Code を起動して、作業ツリーのファイルを書き換えさせられるようになります（許可したコマンドだけ実行できます。git の commit・push はできません）。許可コマンドがプロジェクトの中のスクリプトを実行する場合、Claude Code はそのスクリプトを書き換えてから実行できるため、実質的に任意のコードを実行できます。ソースの読み取りを Off にしても、ファイル名の公開（paths）は残ります。",
+      "src": [
+        "project-bridge.py:947 set_permission",
+        "project-bridge.py:899 build_permission_candidate",
+        "project-bridge.py:2146 main(set-permission)",
+        "project-bridge.ps1:1105 Set-ProjectPermission",
+        "project-bridge.ps1:1065 New-PermissionCandidate",
+        "project-bridge.ps1:2297 switch(SetPermission)",
+        "bridge-permission.mjs applyPermissionChanges"
+      ]
+    },
+    "hub-add": {
+      "label": "プロジェクトを追加",
+      "group": "easy",
+      "summary": "プロジェクトをハブ（hub: このPCの全プロジェクトを 1 つの Tunnel・App・キーで公開する方式）に登録します。",
+      "when": "ハブ方式で、プロジェクトを ChatGPT から読めるようにするときに使います。2 つ目以降は登録だけで終わります。",
+      "requires": "Node.js 18 以上。初回は Platform で作った Tunnel ID・Runtime API Key と、Tunnel Client も必要です。",
+      "effect": "必要なら足場を作り、自己試験と承認のあと hub.json に登録します。初回は Tunnel とキーも設定します。キーは別の端末窓（Windows は別コンソール）で入力します。この画面には入力しません。設定に制御文字などが含まれていると承認できません。",
+      "next": "ハブを起動し、ChatGPT で App を作って list_projects を呼びます。2 つ目以降は、起動中のハブに再起動なしで反映されます。",
+      "options": [
+        "project-root",
+        "project-name",
+        "hub-name",
+        "tunnel-id",
+        "tunnel-client-path",
+        "no-browser",
+        "no-start",
+        "force-reconfigure",
+        "replace-key",
+        "exposure-sha256"
+      ],
+      "required": [
+        "project-root"
+      ],
+      "platformOnly": {},
+      "interactive": [
+        "key",
+        "approval"
+      ],
+      "foreground": true,
+      "caution": "ハブ方式では、このアプリを使うどのチャットからも、承認済みの全プロジェクトを読めます。機密度が違うプロジェクトは従来方式（別の Tunnel）に分けてください。--no-start なしの初回は、最後にハブが前面で動き続けます。",
+      "src": [
+        "project-bridge.py:1017 hub_add",
+        "project-bridge.py:1664 main(hub-add)",
+        "project-bridge.ps1:945 Add-HubProject",
+        "project-bridge.ps1:1489 switch(HubAdd)",
+        "SKILL.md:56",
+        "references/setup.md:153",
+        "references/setup.md:227"
+      ]
+    },
+    "hub-remove": {
+      "label": "ハブから外す",
+      "group": "hub",
+      "summary": "プロジェクトをハブの登録から外します。",
+      "when": "そのプロジェクトを、ハブ経由では ChatGPT から読めなくしたいときに使います。",
+      "requires": "ハブに登録済みであること。ハブ内の名前かプロジェクトのフォルダーの、どちらかを指定します。",
+      "effect": "hub.json の登録だけを書き換えます。プロジェクトのファイルと承認ファイルは残します。",
+      "next": "起動中のハブには再起動なしで反映されます。登録一覧を表示して確かめます。",
+      "options": [
+        "project-root",
+        "hub-name"
+      ],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "名前もフォルダーも省略すると、実行したときのフォルダーが対象になります。両方指定すると名前が優先されます。",
+      "src": [
+        "project-bridge.py:1088 hub_remove",
+        "project-bridge.py:1666 main(hub-remove)",
+        "project-bridge.ps1:1030 Remove-HubProject",
+        "project-bridge.ps1:1492 switch(HubRemove)",
+        "references/setup.md:183"
+      ]
+    },
+    "hub-list": {
+      "label": "登録一覧を表示",
+      "group": "easy",
+      "summary": "ハブの設定と、登録したプロジェクトごとの公開範囲の承認状態を表示します。",
+      "when": "どのプロジェクトがハブに入っていて、承認済みかを確かめたいときに使います。",
+      "requires": "特にありません（ハブが未設定でも実行できます）。",
+      "effect": "設定ファイルは書き換えません。承認状態（承認済み・未承認・使用不可）を調べるだけで、Tunnel の稼働・ツール検出・実呼び出しは確かめません。",
+      "next": "未承認のプロジェクトは、公開範囲を承認します。",
+      "options": [],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "未承認と表示されたプロジェクトは、承認するまで ChatGPT から読めません。",
+      "src": [
+        "project-bridge.py:1103 hub_list",
+        "project-bridge.py:1003 hub_project_states",
+        "project-bridge.py:1668 main(hub-list)",
+        "project-bridge.ps1:1046 Show-HubList",
+        "project-bridge.ps1:924 Get-HubProjectState",
+        "project-bridge.ps1:1495 switch(HubList)"
+      ]
+    },
+    "hub-permissions": {
+      "label": "権限を確認（ソース・Claude Code）",
+      "group": "easy",
+      "summary": "ハブに登録した全プロジェクトについて、ChatGPT からソースの本文を読めるか、Claude Code を起動できるかと、承認の状態を JSON で出力します。",
+      "when": "どのプロジェクトで何が許可されているかを確かめたいときに使います。かんたんタブの一覧の「権限を確認」ボタンも、同じ内容で一覧の列を埋めます。",
+      "requires": "Node.js 18 以上が入っていること。ハブに登録したプロジェクトがあること。",
+      "effect": "読み取り専用で、hub.json・承認ファイル・プロジェクトの設定のどれにも書き込みません。プロジェクト 1 件につき Node.js を 2 回起動するので、数秒かかります。1 件が失敗しても、そのプロジェクトの error に理由を入れて残りを続けます。",
+      "next": "切り替えたい項目があれば、一覧のボタンで On / Off します（承認ダイアログを経て、設定の変更と承認が 1 つの操作で行われます）。",
+      "options": [],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "「ソースの読み取り」が「一部のみ」のときは、本文（sourceText）だけ許可されていてファイル名（paths）が許可されていないため、実際には使えません。承認が「変更あり」「未承認」のプロジェクトは、承認し直すまで ChatGPT から使えません。",
+      "src": [
+        "project-bridge.py:1022 hub_permissions",
+        "project-bridge.py:995 hub_permission_entry",
+        "project-bridge.py:2148 main(hub-permissions)",
+        "project-bridge.ps1:1194 Show-HubPermission",
+        "project-bridge.ps1:1164 Get-HubPermissionEntry",
+        "project-bridge.ps1:2300 switch(HubPermissions)"
+      ]
+    },
+    "hub-start": {
+      "label": "ハブを起動",
+      "group": "easy",
+      "summary": "登録した全プロジェクトの承認を確かめ、ハブの Tunnel Client を起動します。",
+      "when": "ChatGPT がプロジェクトを読む間は、ハブを起動しておく必要があります。",
+      "requires": "「プロジェクトを追加」（ハブ）で、Tunnel とキーの設定が済んでいること。",
+      "effect": "変更または未承認のプロジェクトがあれば、公開範囲を表示して承認を求め、承認を保存します。そのあとハブを前面で動かし続けます。",
+      "next": "起動したままにして、ChatGPT で list_projects を呼んで確かめます。終了は、この画面ではカードの「停止」ボタン（CLI では Ctrl+C）です。",
+      "options": [
+        "tunnel-client-path",
+        "service"
+      ],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [
+        "approval"
+      ],
+      "foreground": true,
+      "caution": "終了せず動き続けます。起動済みなら状態を表示するだけで成功になります。承認を断ると、起動せずに失敗します。設定に制御文字などが含まれていると承認できません。",
+      "src": [
+        "project-bridge.py:1129 hub_start",
+        "project-bridge.py:736 start_profile_tunnel",
+        "project-bridge.py:1670 main(hub-start)",
+        "project-bridge.ps1:1072 Start-HubTunnel",
+        "project-bridge.ps1:1498 switch(HubStart)",
+        "references/setup.md:181",
+        "SKILL.md:58"
+      ]
+    },
+    "hub-stop": {
+      "label": "ハブを停止",
+      "group": "easy",
+      "summary": "動いているハブの Tunnel Client を停止します。",
+      "when": "ハブを止めたいときに使います。別の端末からも実行できます。",
+      "requires": "特にありません。",
+      "effect": "Tunnel Client のプロセスを止めて、止まったことを確かめます（Windows は強制終了）。設定ファイルは書き換えません。",
+      "next": "再開するときは「ハブを起動」を使います。",
+      "options": [
+        "tunnel-client-path"
+      ],
+      "required": [],
+      "platformOnly": {
+        "tunnel-client-path": "ubuntu"
+      },
+      "interactive": [],
+      "foreground": false,
+      "caution": "止めると、このPCの全プロジェクトが ChatGPT から読めなくなります。停止中に実行しても成功になります（「ハブは起動していません」と出ます）。",
+      "src": [
+        "project-bridge.py:1161 hub_stop",
+        "project-bridge.py:1149 hub_running_pid",
+        "project-bridge.py:1672 main(hub-stop)",
+        "project-bridge.ps1:1094 Stop-HubTunnel",
+        "project-bridge.ps1:1501 switch(HubStop)",
+        "references/setup.md:182",
+        "references/setup.md:228"
+      ]
+    },
+    "hub-restart": {
+      "label": "ハブを再起動",
+      "group": "hub",
+      "summary": "ハブを停止し、止まったことを確かめてから、もう一度起動します。",
+      "when": "停止と起動を続けて行いたいときに使います。プロジェクトの追加・削除だけなら、再起動は要りません。",
+      "requires": "「プロジェクトを追加」（ハブ）で、Tunnel とキーの設定が済んでいること。",
+      "effect": "停止してから、全プロジェクトの承認を確かめて起動します。変更または未承認のものがあれば承認を求め、前面で動かし続けます。",
+      "next": "起動したままにして、ChatGPT で確かめます。終了は、この画面ではカードの「停止」ボタン（CLI では Ctrl+C）です。",
+      "options": [
+        "tunnel-client-path",
+        "service"
+      ],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [
+        "approval"
+      ],
+      "foreground": true,
+      "caution": "再起動の間、全プロジェクトが一時的に読めなくなります。停止中だった場合も、そのまま起動まで進みます。",
+      "src": [
+        "project-bridge.py:1674 main(hub-restart)",
+        "project-bridge.py:1161 hub_stop",
+        "project-bridge.py:1129 hub_start",
+        "project-bridge.ps1:1504 switch(HubRestart)",
+        "project-bridge.ps1:1094 Stop-HubTunnel",
+        "project-bridge.ps1:1072 Start-HubTunnel",
+        "references/setup.md:182"
+      ]
+    },
+    "hub-doctor": {
+      "label": "ハブを診断",
+      "group": "hub",
+      "summary": "ハブ用の Tunnel 設定を公式の診断（doctor）で確かめ、登録プロジェクトごとの承認状態も表示します。",
+      "when": "ハブを起動する前に、設定やキーの参照が正しいかを確かめたいときに使います。",
+      "requires": "「プロジェクトを追加」（ハブ）が済み、Tunnel Client が入っていること。Windows はキーの保存も必要です。",
+      "effect": "設定と承認は書き換えません。確かめるのはプロファイル・キー参照・MCP コマンドの静的な診断と承認状態だけで、自己試験・Tunnel の稼働・ツール検出・実呼び出しは確かめません。",
+      "next": "未承認のプロジェクトは公開範囲を承認します。問題がなければ「ハブを起動」へ進みます。",
+      "options": [
+        "tunnel-client-path"
+      ],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "未承認のプロジェクトがあっても、表示するだけで成功（終了コード 0）になります。成功は全プロジェクトが承認済みの意味ではありません。",
+      "src": [
+        "project-bridge.py:1116 hub_doctor",
+        "project-bridge.py:1681 main(hub-doctor)",
+        "project-bridge.ps1:1056 Invoke-HubDoctor",
+        "project-bridge.ps1:1514 switch(HubDoctor)",
+        "references/setup.md:390"
+      ]
+    },
+    "hub-status": {
+      "label": "ハブの稼働状態",
+      "group": "easy",
+      "summary": "ハブの Tunnel Client の管理画面（health）から、稼働状態を表示します。",
+      "when": "ハブを起動したあとに、Tunnel がつながっているかを確かめたいときに使います。",
+      "requires": "「プロジェクトを追加」（ハブ）が済んでいて、ハブが起動していること。",
+      "effect": "何も書き換えません。確かめるのは「Tunnel の稼働」だけです。自己試験・ツール検出・実呼び出しは確かめません。",
+      "next": "ChatGPT の新しいチャットで、list_projects などのツールの検出と実際の呼び出しを確かめます。",
+      "options": [],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "ハブが停止中だとエラーで終了します。稼働中の表示は、ChatGPT で読めることの証明ではありません。",
+      "src": [
+        "project-bridge.py:778 show_profile_status",
+        "project-bridge.py:1683 main(hub-status)",
+        "project-bridge.ps1:673 Show-ProfileStatus",
+        "project-bridge.ps1:1517 switch(HubStatus)",
+        "SKILL.md:66"
+      ]
+    },
+    "hub-service-install": {
+      "label": "自動起動を登録",
+      "group": "hub",
+      "summary": "ログイン時にハブを自動で起動する登録をします（Ubuntu は systemd、Windows はスタートアップ）。",
+      "when": "ハブを常に使える状態にすると決めたときだけ使います。既定では自動起動しません。",
+      "requires": "「プロジェクトを追加」（ハブ）が済んでいること。手動で起動中のハブは先に止めます（Ubuntu は拒否されます）。",
+      "effect": "Ubuntu は ~/.config/systemd/user にユニットを書いて有効化・起動し（linger も有効にします）、Windows はスタートアップにショートカットを作って起動します。",
+      "next": "状態は「ハブの稼働状態」で確認します。やめるときは「自動起動を解除」を使います。",
+      "options": [
+        "no-enable",
+        "no-start",
+        "tunnel-client-path"
+      ],
+      "required": [],
+      "platformOnly": {
+        "no-enable": "ubuntu",
+        "no-start": "windows",
+        "tunnel-client-path": "ubuntu"
+      },
+      "interactive": [],
+      "foreground": false,
+      "caution": "ログイン中は承認済みプロジェクトが ChatGPT から読める状態が続きます（Ubuntu は linger を有効にするため、ログインしていないときも続きます）。自動起動は入力を求めず、未承認のプロジェクトは公開しません。",
+      "src": [
+        "project-bridge.py:1182 hub_service_install",
+        "project-bridge.py:1677 main(hub-service-install)",
+        "project-bridge.ps1:1110 Install-HubAutoStart",
+        "project-bridge.ps1:1508 switch(HubServiceInstall)",
+        "SKILL.md:58",
+        "references/setup.md:203",
+        "references/setup.md:207"
+      ]
+    },
+    "hub-service-uninstall": {
+      "label": "自動起動を解除",
+      "group": "hub",
+      "summary": "ログイン時のハブの自動起動を解除します。",
+      "when": "自動起動をやめるときに使います。",
+      "requires": "自動起動を登録済みであること（未登録なら何もせず終わります）。",
+      "effect": "Ubuntu はサービスを停止して無効にし、ユニットを削除します。Windows はスタートアップのショートカットを削除します（動作中のハブは止めません）。",
+      "next": "手動で動かすときは「ハブを起動」を使います。Windows で動作中のハブを止めるときは「ハブを停止」を使います。",
+      "options": [
+        "no-enable"
+      ],
+      "required": [],
+      "platformOnly": {
+        "no-enable": "ubuntu"
+      },
+      "interactive": [],
+      "foreground": false,
+      "caution": "Ubuntu では、systemd で動いているハブも止まります。未登録のときは何もせず成功になります。",
+      "src": [
+        "project-bridge.py:1228 hub_service_uninstall",
+        "project-bridge.py:1679 main(hub-service-uninstall)",
+        "project-bridge.ps1:1138 Uninstall-HubAutoStart",
+        "project-bridge.ps1:1511 switch(HubServiceUninstall)"
+      ]
+    },
+    "export-skill": {
+      "label": "Skill を書き出し",
+      "group": "maintainer",
+      "summary": "Skill 一式を 1 つのアーカイブ（Ubuntu は .tar.gz か .zip、Windows は .zip）にまとめます。",
+      "when": "別の PC へ Skill を 1 ファイルで渡す互換用の方法です。通常は「配布 Bundle を作成」を使います。",
+      "requires": "出力先のフォルダーが存在すること。distribution.json の一覧のファイルが読めること。",
+      "effect": "出力先にアーカイブを 1 つ作ります。Skill 本体のフォルダーは書き換えません。",
+      "next": "別の PC でアーカイブを展開して使います。指紋の一覧や署名は作られません。",
+      "options": [
+        "output-path",
+        "force"
+      ],
+      "required": [
+        "output-path"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "既にあるファイルは force を付けない限り置き換えません。Skill 本体のフォルダーの中は出力先に指定できません。",
+      "src": [
+        "project-bridge.py:1302 export_skill",
+        "project-bridge.py:1658 main(export-skill)",
+        "project-bridge.ps1:1525 switch(ExportSkill)",
+        "SKILL.md:54",
+        "references/setup.md:362"
+      ]
+    },
+    "export-bundle": {
+      "label": "配布 Bundle を作成",
+      "group": "maintainer",
+      "summary": "Windows 用と Ubuntu 用の 1 コマンド導入フォルダー（アーカイブ・インストーラー・指紋一覧）を作ります。",
+      "when": "別の PC へインストールするための配布物を作るときに使います（保守者向け）。",
+      "requires": "distribution.json の一覧が正しいこと。署名するときは ssh-keygen と SSH 秘密鍵のファイルが必要です。",
+      "effect": "出力先に Windows と Ubuntu のフォルダーを作り、SHA256SUMS.txt を書きます。署名鍵を指定すると SHA256SUMS.txt.sig も作ります。",
+      "next": "表示された SHA256SUMS.txt の指紋を、Bundle とは別の経路で導入先へ伝えます。",
+      "options": [
+        "output-path",
+        "force",
+        "signing-key"
+      ],
+      "required": [
+        "output-path"
+      ],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "force を付けると、出力先にある Windows・Ubuntu フォルダーを置き換えます。署名しない場合は指紋だけが表示されます。",
+      "src": [
+        "project-bridge.py:1346 export_bundle",
+        "project-bridge.py:1660 main(export-bundle)",
+        "project-bridge.ps1:1220 Export-BridgeBundle",
+        "project-bridge.ps1:1550 switch(ExportBundle)",
+        "SKILL.md:54",
+        "references/setup.md:348",
+        "references/setup.md:360"
+      ]
+    },
+    "update-lock": {
+      "label": "依存物ロックを更新",
+      "group": "maintainer",
+      "summary": "Tunnel Client と Node.js の版・SHA-256 を、検証したうえで dependencies.lock.json に固定します。",
+      "when": "依存物の版を上げるときに、Skill のソース上で実行します（保守者向け）。",
+      "requires": "GitHub CLI（gh）と、GitHub・nodejs.org へのネット接続が必要です。",
+      "effect": "ダウンロードして SHA-256 と来歴証明（SLSA provenance）を検証し、検証できた版だけ dependencies.lock.json を書き換えます。",
+      "next": "表示された版とハッシュの差分を確認してコミットし、「配布 Bundle を作成」で作り直します。",
+      "options": [
+        "tunnel-client-version",
+        "node-version",
+        "gh-path"
+      ],
+      "required": [],
+      "platformOnly": {},
+      "interactive": [],
+      "foreground": false,
+      "caution": "実行したスクリプトがあるフォルダーのロックを書き換えます。検証に失敗した版は固定されず、そこで止まります。",
+      "src": [
+        "project-bridge.py:1500 update_lock",
+        "project-bridge.py:1662 main(update-lock)",
+        "project-bridge.ps1:1332 Update-DependencyLock",
+        "project-bridge.ps1:1522 switch(UpdateLock)",
+        "SKILL.md:44",
+        "references/setup.md:316",
+        "references/setup.md:324"
+      ]
+    }
+  },
+  "options": {
+    "project-root": {
+      "label": "プロジェクトのフォルダー",
+      "summary": "ChatGPT に読ませるプロジェクトのフォルダー（絶対パス）。",
+      "example": "/home/user/work/MyProject（Windows は E:\\work\\MyProject）",
+      "default": "Ubuntu は省略不可（add-project と hub-add は入力を求め、hub-remove は現在のフォルダー）。Windows は現在のフォルダー。",
+      "caution": "存在するフォルダーだけ指定できます。公開の対象は、このフォルダーの中の許可リストに載った文書だけです。",
+      "kind": "path",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1600 --project-root",
+        "project-bridge.ps1:76 -ProjectRoot",
+        "project-bridge.py:110 resolve_project_root",
+        "project-bridge.ps1:117 Resolve-BridgeProjectRoot",
+        "SKILL.md:40"
+      ]
+    },
+    "project-name": {
+      "label": "プロジェクト名",
+      "summary": "ChatGPT に表示するプロジェクト名。設定ファイルを新しく作るときだけ使います。",
+      "example": "MyProject",
+      "default": "既存の設定があればその名前。無ければフォルダー名。",
+      "caution": "Ubuntu の add-project は、名前も設定も無いと入力を求めます。GUI では必ず入力してください。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1601 --project-name",
+        "project-bridge.ps1:77 -ProjectName",
+        "project-bridge.py:402 initialize_project",
+        "project-bridge.py:828 add_project",
+        "project-bridge.py:1017 hub_add"
+      ]
+    },
+    "profile": {
+      "label": "プロファイル名",
+      "summary": "Tunnel Client の設定名。承認ファイルとキーの保存先の名前にもなります。",
+      "example": "chatgpt-myproject-1a2b3c4d",
+      "default": "設定ファイルの値。無ければ chatgpt-<プロジェクト名>-<フォルダーの 8 桁ハッシュ> を自動で作ります。",
+      "caution": "通常は空欄にします。小文字の英数字と . _ - だけで 63 文字まで。別の名前にすると、承認とキーも別のものになります。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1602 --profile",
+        "project-bridge.ps1:78 -Profile",
+        "project-bridge.py:198 resolve_profile",
+        "project-bridge.py:189 new_profile_name",
+        "project-bridge.ps1:196 Resolve-ProfileName"
+      ]
+    },
+    "tunnel-id": {
+      "label": "Tunnel ID",
+      "summary": "Platform の Tunnel 設定で作成した ID（tunnel_ に 32 桁の 16 進数が続く形式）。",
+      "example": "tunnel_0123456789abcdef0123456789abcdef",
+      "default": "なし。ハブ方式は、ハブに記録済みの ID を使います。",
+      "caution": "プロジェクトごとに別の Tunnel を使います。同時に動く複数の PC で、同じ Tunnel ID を使わないでください。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1603 --tunnel-id",
+        "project-bridge.ps1:79 -TunnelId",
+        "project-bridge.py:612 configure_tunnel",
+        "project-bridge.py:1017 hub_add",
+        "SKILL.md:15",
+        "SKILL.md:56"
+      ]
+    },
+    "health-port": {
+      "label": "管理画面のポート",
+      "summary": "Tunnel Client のローカル管理画面（127.0.0.1）のポート番号。0 から 65535。",
+      "example": "18080",
+      "default": "0（自動）。Ubuntu は起動時に決まり、Windows は 18080 以降の空きポートを選びます。",
+      "caution": "「Tunnel を設定」だけで使います。通常は 0 のままにします。",
+      "kind": "number",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1604 --health-port",
+        "project-bridge.ps1:82 -HealthPort",
+        "project-bridge.py:612 configure_tunnel",
+        "project-bridge.ps1:578 Configure-TunnelProfile",
+        "project-bridge.ps1:236 Find-FreeHealthPort"
+      ]
+    },
+    "tunnel-client-path": {
+      "label": "Tunnel Client の場所",
+      "summary": "公式の Tunnel Client（tunnel-client）の実行ファイルのパス。",
+      "example": "/home/user/.local/bin/tunnel-client（Windows は C:\\Tools\\tunnel-client.exe）",
+      "default": "PATH と既知の場所から自動で探します（Ubuntu は ~/.local/bin と ~/bin）。",
+      "caution": "見つからないとエラーになります。",
+      "kind": "path",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1605 --tunnel-client-path",
+        "project-bridge.ps1:80 -TunnelClientPath",
+        "project-bridge.py:236 find_tunnel_client",
+        "project-bridge.ps1:216 Find-TunnelClient"
+      ]
+    },
+    "output-path": {
+      "label": "出力先",
+      "summary": "export-skill はアーカイブのファイル、export-bundle は Bundle を作るフォルダー。",
+      "example": "/home/user/Transfer/ChatGPT（export-skill はファイル名まで指定）",
+      "default": "",
+      "caution": "Skill 本体のフォルダーの中は指定できません。export-skill は、出力先のフォルダーが存在する必要があります。",
+      "kind": "path",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1606 --output-path",
+        "project-bridge.ps1:83 -OutputPath",
+        "project-bridge.py:1302 export_skill",
+        "project-bridge.py:1346 export_bundle"
+      ]
+    },
+    "force": {
+      "label": "上書きを許可（force）",
+      "summary": "既存のファイルや設定を置き換えることを許可します。",
+      "example": "",
+      "default": "オフ（既存があると失敗します）。",
+      "caution": "上書き対象は Action で変わります。init は設定ファイル、configure-tunnel は Tunnel の設定と ID、export-skill は出力ファイル、export-bundle は出力先の 2 フォルダー。",
+      "kind": "flag",
+      "dangerous": true,
+      "src": [
+        "project-bridge.py:1607 --force",
+        "project-bridge.ps1:84 -Force",
+        "project-bridge.py:402 initialize_project",
+        "project-bridge.py:612 configure_tunnel",
+        "project-bridge.py:1302 export_skill",
+        "project-bridge.py:1346 export_bundle"
+      ]
+    },
+    "no-browser": {
+      "label": "ブラウザーを開かない",
+      "summary": "Tunnel 作成・API Key・ChatGPT Plugins の画面を、ブラウザーで自動的に開かないようにします。",
+      "example": "",
+      "default": "オフ（既定のブラウザーで開きます）。",
+      "caution": "画面の URL は出力に表示されます。",
+      "kind": "flag",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1608 --no-browser",
+        "project-bridge.ps1:85 -NoBrowser",
+        "project-bridge.py:812 show_cloud_url",
+        "project-bridge.ps1:697 Show-CloudUrl"
+      ]
+    },
+    "no-start": {
+      "label": "起動しない",
+      "summary": "最後の Tunnel Client の前面起動を省略します（add-project・hub-add）。",
+      "example": "",
+      "default": "オフ（最後に前面で起動し続けます）。",
+      "caution": "hub-service-install では Windows だけで使え、登録だけして今はハブを起動しません。",
+      "kind": "flag",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1609 --no-start",
+        "project-bridge.ps1:86 -NoStart",
+        "project-bridge.py:828 add_project",
+        "project-bridge.py:1017 hub_add",
+        "project-bridge.ps1:1110 Install-HubAutoStart"
+      ]
+    },
+    "force-reconfigure": {
+      "label": "プロファイルを作り直す",
+      "summary": "既存の Tunnel プロファイルを作り直すことを許可します。2.0.0 で作った古いプロファイルの再生成に使います。",
+      "example": "",
+      "default": "オフ（既存のプロファイルは再利用します）。",
+      "caution": "既存の Tunnel プロファイル（設定ファイル）を作り直して上書きします。Tunnel ID は変えられません。Tunnel Client が動いていると拒否されます。ハブ方式ではこのPC共通のプロファイルが対象です。",
+      "kind": "flag",
+      "dangerous": true,
+      "src": [
+        "project-bridge.py:1610 --force-reconfigure",
+        "project-bridge.ps1:87 -ForceReconfigure",
+        "project-bridge.py:828 add_project",
+        "project-bridge.py:1017 hub_add",
+        "project-bridge.py:969 initialize_hub_profile",
+        "SKILL.md:60",
+        "references/setup.md:131"
+      ]
+    },
+    "replace-key": {
+      "label": "キーを置き換える",
+      "summary": "既に保存してあるキーを、新しく入力したキーで置き換えることを許可します。",
+      "example": "",
+      "default": "オフ（既存のキーがあれば置き換えません）。",
+      "caution": "既存の Runtime API Key を新しいキーで置き換えます。古いキーは戻せません。ハブ方式ではこのPC全プロジェクト共通のキーです。",
+      "kind": "flag",
+      "dangerous": true,
+      "src": [
+        "project-bridge.py:1611 --replace-key",
+        "project-bridge.ps1:88 -ReplaceKey",
+        "project-bridge.py:300 save_profile_runtime_key",
+        "project-bridge.py:1017 hub_add",
+        "project-bridge.ps1:637 Save-ProfileRuntimeKey",
+        "references/setup.md:289"
+      ]
+    },
+    "exposure-sha256": {
+      "label": "公開範囲の指紋",
+      "summary": "利用者が入力する欄ではありません。承認ダイアログが、表示した公開範囲の指紋を自動で渡します。",
+      "example": "（入力しません。承認ダイアログが渡します）",
+      "default": "なし（空なら CLI が「yes / NO」を尋ねます）。",
+      "caution": "指紋が現在の公開範囲と一致すると、確認の質問なしで承認が保存されます。内容を読まずに渡さないでください。",
+      "kind": "text",
+      "dangerous": true,
+      "src": [
+        "project-bridge.py:1612 --exposure-sha256",
+        "project-bridge.ps1:89 -ExposureSha256",
+        "project-bridge.py:550 confirm_exposure",
+        "project-bridge.ps1:495 Confirm-BridgeExposure",
+        "SKILL.md:41",
+        "references/setup.md:132"
+      ]
+    },
+    "signing-key": {
+      "label": "署名鍵のファイル",
+      "summary": "SHA256SUMS.txt に SSH 署名（ssh-keygen -Y sign）するための、秘密鍵のファイルのパス。",
+      "example": "/home/user/.ssh/id_ed25519",
+      "default": "なし（署名せず、指紋だけを表示します）。",
+      "caution": "鍵の中身は入力せず、ファイルの場所だけを指定します。",
+      "kind": "path",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1613 --signing-key",
+        "project-bridge.ps1:90 -SigningKey",
+        "project-bridge.py:1346 export_bundle",
+        "project-bridge.ps1:1220 Export-BridgeBundle",
+        "references/setup.md:359"
+      ]
+    },
+    "tunnel-client-version": {
+      "label": "Tunnel Client の版",
+      "summary": "固定する Tunnel Client のリリースタグ。",
+      "example": "v1.2.3",
+      "default": "最新のリリース。",
+      "caution": "v で始まる形式だけ受け付けます。来歴証明を検証できない版は固定されません。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1614 --tunnel-client-version",
+        "project-bridge.ps1:91 -TunnelClientVersion",
+        "project-bridge.py:1500 update_lock",
+        "project-bridge.ps1:1332 Update-DependencyLock",
+        "SKILL.md:44"
+      ]
+    },
+    "node-version": {
+      "label": "Node.js の版",
+      "summary": "固定する Node.js LTS の版。",
+      "example": "v22.11.0",
+      "default": "最新の LTS。",
+      "caution": "v22.11.0 の形式の LTS だけ受け付けます。Windows は winget に登録された版を選びます（Ubuntu は winget を確認しません）。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1615 --node-version",
+        "project-bridge.ps1:92 -NodeVersion",
+        "project-bridge.py:1500 update_lock",
+        "project-bridge.ps1:1332 Update-DependencyLock",
+        "references/setup.md:342"
+      ]
+    },
+    "gh-path": {
+      "label": "GitHub CLI（gh）の場所",
+      "summary": "Tunnel Client の来歴証明の検証に使う、GitHub CLI（gh）の実行ファイルのパス。",
+      "example": "/home/user/.local/bin/gh（Windows は C:\\Tools\\gh\\bin\\gh.exe）",
+      "default": "PATH と既知の場所から探します（Ubuntu は ~/.local/bin/gh、Windows は %LOCALAPPDATA%\\Programs\\gh\\bin\\gh.exe）。",
+      "caution": "見つからないと、更新は止まります（検証を省くことはできません）。",
+      "kind": "path",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1616 --gh-path",
+        "project-bridge.ps1:93 -GhPath",
+        "project-bridge.py:1470 find_gh",
+        "project-bridge.ps1:1310 Find-GhExecutable",
+        "references/setup.md:324"
+      ]
+    },
+    "hub-name": {
+      "label": "ハブ内の名前",
+      "summary": "ハブの中でプロジェクトを区別する名前。ChatGPT のツールで project の指定に使われます。",
+      "example": "ProjectA",
+      "default": "プロジェクト名から自動で作ります。",
+      "caution": "英数字で始まり、英数字と . _ - で 63 文字以内。同じフォルダーが登録済みなら、hub-add は登録済みの名前を使います。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1617 --hub-name",
+        "project-bridge.ps1:94 -HubName",
+        "project-bridge.py:1017 hub_add",
+        "project-bridge.py:1088 hub_remove",
+        "project-bridge.ps1:945 Add-HubProject",
+        "references/setup.md:155",
+        "references/setup.md:157"
+      ]
+    },
+    "service": {
+      "label": "入力なしで起動（自動起動用）",
+      "summary": "確認の質問を出さずにハブを起動します。ログイン時の自動起動で使われます。",
+      "example": "",
+      "default": "オフ（承認の確認を尋ねます）。",
+      "caution": "未承認のプロジェクトや、設定が変わったプロジェクトは、承認を求めずに公開しないまま起動します。",
+      "kind": "flag",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1618 --service",
+        "project-bridge.ps1:95 -Service",
+        "project-bridge.py:1129 hub_start",
+        "project-bridge.ps1:1072 Start-HubTunnel",
+        "SKILL.md:58"
+      ]
+    },
+    "no-enable": {
+      "label": "有効化しない（Ubuntu のみ）",
+      "summary": "ユニットファイルの書き込み（解除では削除）だけを行い、systemctl での有効化・無効化と起動・停止はしません。",
+      "example": "",
+      "default": "オフ。",
+      "caution": "Ubuntu だけで使えます。Windows にはありません（Windows の hub-service-install は、起動を省く no-start を使います）。",
+      "kind": "flag",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:1619 --no-enable",
+        "project-bridge.py:1182 hub_service_install",
+        "project-bridge.py:1228 hub_service_uninstall"
+      ]
+    },
+    "source-read": {
+      "label": "ソースの読み取り（on / off）",
+      "summary": "ChatGPT にソースコードの本文を読ませるかを切り替えます。on は detailExposure.sourceText と gitExposure.paths を許可し、off は sourceText だけを止めます。",
+      "example": "on",
+      "default": "指定しない（変えません）。",
+      "caution": "off にしても、ファイル名の公開（gitExposure.paths）は残ります。設定が変わるので、再承認が要ります（切り替えと承認は 1 つの操作です）。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:2105 --source-read",
+        "project-bridge.ps1:110 -SourceRead",
+        "bridge-permission.mjs applyPermissionChanges",
+        "SKILL.md:44"
+      ]
+    },
+    "claude-code": {
+      "label": "Claude Code の起動（on / off）",
+      "summary": "ChatGPT から Claude Code を起動できるか（claudeCode.enabled）を切り替えます。",
+      "example": "on",
+      "default": "指定しない（変えません）。",
+      "caution": "on にすると、Claude Code が作業ツリーのファイルを書き換えられます。claudeCode が無いプロジェクトでは、許可コマンドなし（ファイルの編集だけ）から始まります。off は enabled だけを止め、許可コマンドなどの設定は残します。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:2106 --claude-code",
+        "project-bridge.ps1:112 -ClaudeCode",
+        "bridge-permission.mjs applyPermissionChanges",
+        "SKILL.md:45"
+      ]
+    },
+    "allowed-command": {
+      "label": "許可コマンド",
+      "summary": "Claude Code に確認なしで実行させてよいコマンドのパターン（* は任意の文字列）。指定すると一覧を置き換えます。複数は 1 つの値に改行で区切って渡せます（PowerShell の -File では同じ引数を繰り返せないため）。",
+      "example": "node scripts/*-selftest.mjs",
+      "default": "指定しない（変えません）。",
+      "caution": "シェル（bash・pwsh・cmd など）・通信（curl・ssh など）・git の書き込み系は書けません（設定全体が無効になります）。プロジェクトの中のスクリプトを実行するコマンドは、Claude Code がそのスクリプトを書き換えてから実行できるため、実質的に任意のコードの実行になります。",
+      "kind": "text",
+      "dangerous": false,
+      "src": [
+        "project-bridge.py:2107 --allowed-command",
+        "project-bridge.ps1:113 -AllowedCommand",
+        "bridge-tools-common.mjs validateClaudeCommandPattern",
+        "references/setup.md Claude Code のジョブの設定"
+      ]
+    }
+  }
+}

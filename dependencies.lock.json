@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "tunnelClient": {
+    "version": "v0.0.15",
+    "assets": {
+      "windows-amd64": {
+        "name": "tunnel-client-v0.0.15-windows-amd64.zip",
+        "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.15/tunnel-client-v0.0.15-windows-amd64.zip",
+        "sha256": "3b53133a1e24d43f63088d843860cb1701a4c3ed6390de2e19f69089e43bddc1"
+      },
+      "linux-amd64": {
+        "name": "tunnel-client-v0.0.15-linux-amd64.zip",
+        "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.15/tunnel-client-v0.0.15-linux-amd64.zip",
+        "sha256": "8c836dc5d68d68b663d9a5c5b28ff9fa780d9f7a3fffb1c306880b8f32fab5f1"
+      },
+      "linux-arm64": {
+        "name": "tunnel-client-v0.0.15-linux-arm64.zip",
+        "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.15/tunnel-client-v0.0.15-linux-arm64.zip",
+        "sha256": "c51bfd883fc22e3445494a03c0179875176564bde470661b308fd83af5d01abb"
+      }
+    },
+    "provenance": {
+      "bundle": {
+        "name": "tunnel-client-v0.0.15-provenance.sigstore.json",
+        "url": "https://github.com/openai/tunnel-client/releases/download/v0.0.15/tunnel-client-v0.0.15-provenance.sigstore.json",
+        "sha256": "ae2527cecec7201c6b91b155b55bfad9220f7daad868da1741ed64fe7c7dd24b"
+      },
+      "repository": "openai/tunnel-client",
+      "signerWorkflow": "openai/tunnel-client/.github/workflows/release.yml",
+      "sourceRef": "refs/tags/v0.0.15",
+      "sourceDigest": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "verifiedWith": "gh version 2.102.0 (2026-09-30)"
+    }
+  },
+  "node": {
+    "version": "v24.19.0",
+    "wingetVersion": "24.19.0",
+    "assets": {
+      "linux-x64": {
+        "name": "node-v24.19.0-linux-x64.tar.xz",
+        "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz",
+        "sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647"
+      },
+      "linux-arm64": {
+        "name": "node-v24.19.0-linux-arm64.tar.xz",
+        "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-arm64.tar.xz",
+        "sha256": "01443c1e1a29e531ccad5a46fefa6df490d2189c49f7955904aecdbb0fe86fdc"
+      }
+    }
+  }
+}

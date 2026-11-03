@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>ChatGPT Project Bridge｜Windows・Ubuntu インストールマニュアル</title>
+  <style>
+    :root {
+      --ink: #172033; --muted: #58647a; --surface: #ffffff; --surface-soft: #f5f7fb; --line: #dbe2ec;
+      --windows: #0878d1; --windows-soft: #e7f4ff; --ubuntu: #c64216; --ubuntu-soft: #fff0e8;
+      --common: #087f5b; --common-soft: #e6f8f1; --verify: #6d3cc5; --verify-soft: #f1eaff;
+      --warn: #a65b00; --warn-soft: #fff4d8; --danger: #b42318; --danger-soft: #ffebe9;
+      --shadow: 0 16px 45px rgba(31, 50, 81, .10); --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: linear-gradient(180deg, #eef3fa 0, #f8fafc 360px, #f4f7fb 100%); font-family: "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif; line-height: 1.75; }
+    a { color: #075fa7; text-underline-offset: 3px; }
+    code, pre { font-family: "Cascadia Code", "Noto Sans Mono CJK JP", Consolas, monospace; }
+    code { overflow-wrap: anywhere; }
+    .layout { display: grid; grid-template-columns: 260px minmax(0, 980px); gap: 32px; max-width: 1320px; margin: 0 auto; padding: 28px; }
+    .toc { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow: auto; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.93); box-shadow: var(--shadow); }
+    .toc strong { display: block; margin-bottom: 10px; font-size: .95rem; }
+    .toc a { display: block; padding: 7px 10px; border-radius: 9px; color: var(--muted); text-decoration: none; font-size: .91rem; }
+    .toc a:hover { color: var(--ink); background: var(--surface-soft); }
+    main { min-width: 0; }
+    .hero { position: relative; overflow: hidden; padding: 44px; border-radius: 26px; color: white; background: linear-gradient(135deg, #162a4b 0%, #075fa7 48%, #087f5b 100%); box-shadow: var(--shadow); }
+    .hero::after { content: ""; position: absolute; width: 300px; height: 300px; right: -90px; top: -120px; border-radius: 50%; background: rgba(255,255,255,.12); }
+    .hero h1 { position: relative; margin: 0 0 14px; font-size: clamp(1.85rem, 4vw, 3rem); line-height: 1.25; }
+    .hero p { position: relative; max-width: 760px; margin: 0; color: #e9f4ff; font-size: 1.05rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; font-size: .82rem; font-weight: 700; }
+    .badge.windows { color: #004e8a; background: var(--windows-soft); }
+    .badge.ubuntu { color: #8b2f0f; background: var(--ubuntu-soft); }
+    .badge.common { color: #065f46; background: var(--common-soft); }
+    .badge.verify { color: #522a9c; background: var(--verify-soft); }
+    .hero .badge { border: 1px solid rgba(255,255,255,.22); }
+    section { scroll-margin-top: 20px; margin-top: 28px; padding: 30px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: 0 8px 28px rgba(31,50,81,.06); }
+    h2 { margin: 0 0 18px; font-size: 1.55rem; line-height: 1.35; }
+    h3 { margin: 27px 0 10px; font-size: 1.14rem; }
+    p { margin: 10px 0; }
+    .lead { color: var(--muted); font-size: 1.02rem; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
+    .os-grid, .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .card { border: 1px solid var(--line); border-radius: 15px; padding: 20px; background: var(--surface-soft); }
+    .card h3 { margin-top: 0; }
+    .card.windows { border-top: 5px solid var(--windows); background: linear-gradient(180deg, var(--windows-soft), #fff 45%); }
+    .card.ubuntu { border-top: 5px solid var(--ubuntu); background: linear-gradient(180deg, var(--ubuntu-soft), #fff 45%); }
+    .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; gap: 10px; margin: 24px 0 8px; }
+    .flow-node { min-height: 124px; display: grid; place-items: center; padding: 16px; border: 2px solid var(--line); border-radius: 16px; text-align: center; font-weight: 800; background: white; }
+    .flow-node small { display: block; margin-top: 5px; color: var(--muted); font-weight: 500; line-height: 1.45; }
+    .flow-node.local { border-color: var(--ubuntu); background: var(--ubuntu-soft); }
+    .flow-node.tunnel { border-color: var(--common); background: var(--common-soft); }
+    .flow-node.cloud { border-color: #2176ae; background: var(--windows-soft); }
+    .flow-node.chat { border-color: var(--verify); background: var(--verify-soft); }
+    .arrow { color: var(--muted); font-size: 1.7rem; font-weight: 900; text-align: center; }
+    .step { position: relative; padding-left: 56px; margin: 25px 0; }
+    .step::before { content: attr(data-step); position: absolute; left: 0; top: 1px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--common); font-weight: 900; }
+    .windows-panel .step::before { background: var(--windows); }
+    .ubuntu-panel .step::before { background: var(--ubuntu); }
+    .step h3 { margin: 0 0 8px; }
+    .code-wrap { position: relative; margin: 12px 0 18px; }
+    pre { margin: 0; padding: 18px 54px 18px 18px; overflow: auto; border-radius: 13px; color: #e7edf6; background: #121a27; font-size: .88rem; line-height: 1.62; white-space: pre; }
+    .copy { position: absolute; top: 9px; right: 9px; border: 1px solid #4c5d76; border-radius: 8px; color: #e7edf6; background: #263348; padding: 6px 9px; cursor: pointer; font-size: .76rem; }
+    .copy:hover { background: #33445f; }
+    .callout { margin: 17px 0; padding: 15px 17px; border-left: 5px solid var(--common); border-radius: 10px; background: var(--common-soft); }
+    .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+    .callout.danger { border-color: var(--danger); background: var(--danger-soft); }
+    .callout.verify { border-color: var(--verify); background: var(--verify-soft); }
+    .url-list { display: grid; gap: 10px; padding: 0; list-style: none; }
+    .url-list li { padding: 13px 15px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); }
+    .url-list strong { display: inline-block; min-width: 190px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: .92rem; }
+    th, td { padding: 12px 13px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #edf2f8; }
+    .checklist { padding: 0; list-style: none; }
+    .checklist li { position: relative; margin: 10px 0; padding: 11px 14px 11px 42px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); }
+    .checklist li::before { content: "✓"; position: absolute; left: 14px; color: var(--common); font-weight: 900; }
+    .status-gates { display: grid; gap: 10px; }
+    .gate { display: grid; grid-template-columns: 32px 150px 1fr; gap: 12px; align-items: start; padding: 13px; border-radius: 12px; background: var(--surface-soft); border: 1px solid var(--line); }
+    .gate span:first-child { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; color: white; background: var(--verify); font-weight: 900; }
+    .fine { color: var(--muted); font-size: .86rem; }
+    footer { padding: 28px 8px 8px; color: var(--muted); text-align: center; font-size: .85rem; }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; padding: 16px; } .toc { position: relative; top: 0; max-height: none; } .flow { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); } }
+    @media (max-width: 680px) { .hero, section { padding: 22px; } .os-grid, .card-grid { grid-template-columns: 1fr; } .url-list strong { display: block; min-width: 0; } .gate { grid-template-columns: 32px 1fr; } .gate div:last-child { grid-column: 2; } }
+    @media print { body { background: white; } .layout { display: block; max-width: none; padding: 0; } .toc, .copy { display: none; } .hero, section { box-shadow: none; break-inside: avoid; } a { color: inherit; text-decoration: none; } pre { white-space: pre-wrap; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc" aria-label="目次">
+      <strong>目次</strong>
+      <a href="#overview">1. 全体像</a><a href="#urls">2. 正確なURL</a><a href="#preverify">3. 実行前の照合</a><a href="#windows">4. Windows</a>
+      <a href="#ubuntu">5. Ubuntu / WSL</a><a href="#chatgpt">6. ChatGPT側</a><a href="#daily">7. 毎日の使い方</a><a href="#hub">7-2. ハブ方式（まとめて公開）</a><a href="#gui">7-3. 管理画面（GUI）</a>
+      <a href="#migration">8. 他PCへの移行</a><a href="#security">9. 公開範囲と鍵</a><a href="#verify">10. 接続確認</a><a href="#trouble">11. トラブル診断</a>
+    </nav>
+    <main>
+      <header class="hero">
+        <h1>ChatGPT Project Bridge<br>インストールマニュアル</h1>
+        <p>WindowsとUbuntuのローカルプロジェクトを、読み取り専用MCPとOpenAI Secure MCP TunnelでChatGPTへ接続します。プロジェクト全体ではなく、明示的に許可した文書とGit状態だけを公開します。</p>
+        <div class="meta"><span class="badge windows">■ Windows</span><span class="badge ubuntu">● Ubuntu / WSL</span><span class="badge common">◆ OpenAI共通設定</span><span class="badge verify">✓ 検証</span><span class="badge common">版: 2.10.1</span><span class="badge common">更新: 2026-11-03</span></div>
+      </header>
+
+      <section id="overview">
+        <h2>1. 接続の全体像</h2>
+        <p class="lead">PC側からOpenAIへ外向きHTTPS接続を作ります。ルーターのポート開放や、ローカルMCPサーバーのインターネット公開は不要です。</p>
+        <div class="flow" role="img" aria-label="ローカルプロジェクトからChatGPTまでの接続経路">
+          <div class="flow-node local">ローカルProject<small>許可したMarkdown<br>＋ライブGit情報</small></div><div class="arrow">→</div>
+          <div class="flow-node tunnel">tunnel-client<small>PCから外向きHTTPS<br>api.openai.com:443</small></div><div class="arrow">→</div>
+          <div class="flow-node cloud">OpenAI Tunnel<small>同じ tunnel_id<br>Workspace関連付け</small></div><div class="arrow">→</div>
+          <div class="flow-node chat">ChatGPT<small>開発者モードApp<br>読み取りツール</small></div>
+        </div>
+        <div class="callout warn"><strong>重要：</strong>別の無関係なプロジェクトには、別のTunnelとChatGPT Appを作るのが基本です。同じPC内でも公開範囲を混ぜないでください。</div>
+        <div class="legend"><span class="badge windows">Windowsだけの操作</span><span class="badge ubuntu">Ubuntuだけの操作</span><span class="badge common">両方で必要</span><span class="badge verify">合格確認</span></div>
+      </section>
+
+      <section id="urls">
+        <h2>2. 使用する正確なURL</h2>
+        <ul class="url-list">
+          <li><strong>Tunnel作成・管理</strong><a href="https://platform.openai.com/settings/organization/tunnels">https://platform.openai.com/settings/organization/tunnels</a></li>
+          <li><strong>Runtime API Key</strong><a href="https://platform.openai.com/settings/organization/api-keys">https://platform.openai.com/settings/organization/api-keys</a></li>
+          <li><strong>ChatGPT Plugins</strong><a href="https://chatgpt.com/plugins">https://chatgpt.com/plugins</a></li>
+          <li><strong>ChatGPT接続設定</strong><a href="https://chatgpt.com/#settings/Connectors">https://chatgpt.com/#settings/Connectors</a></li>
+          <li><strong>OpenAI公式Tunnel手順</strong><a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels">https://developers.openai.com/api/docs/guides/secure-mcp-tunnels</a></li>
+          <li><strong>Tunnel Clientリリース一覧</strong><a href="https://github.com/openai/tunnel-client/releases">https://github.com/openai/tunnel-client/releases</a><span class="fine">（導入されるのは <code>dependencies.lock.json</code> で固定した版だけです）</span></li>
+          <li><strong>Node.js</strong><a href="https://nodejs.org/en/download">https://nodejs.org/en/download</a></li>
+        </ul>
+      </section>
+
+      <section id="preverify">
+        <h2><span class="badge verify">検証</span> 3. 実行前の照合（必須）</h2>
+        <p class="lead">インストーラーは自分自身の改ざんを検知できません。コピーしたフォルダーは、実行する前に人が照合します。</p>
+        <div class="callout verify"><strong>別経路で受け取るもの：</strong>署名者の公開鍵を書いた <code>allowed_signers</code>（初回だけ）と、各OSの <code>SHA256SUMS.txt</code> の指紋（<code>ExportBundle</code> が最後に表示するSHA-256）。Bundleと同じUSBや共有フォルダーで受け取った値では照合になりません。</div>
+        <div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>bridge-maintainer namespaces="chatgpt-project-bridge-bundle" ssh-ed25519 AAAA...</code></pre></div>
+        <div class="os-grid">
+          <div class="card windows"><h3>Windows</h3><p>署名がある場合（<code>SHA256SUMS.txt.sig</code>）:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>cmd /c "ssh-keygen -Y verify -f allowed_signers -I bridge-maintainer -n chatgpt-project-bridge-bundle -s SHA256SUMS.txt.sig &lt; SHA256SUMS.txt"</code></pre></div><p>署名がない場合は指紋を比べます:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>(Get-FileHash .\SHA256SUMS.txt -Algorithm SHA256).Hash.ToLower()</code></pre></div><p>どちらの場合も、各ファイルを一覧と照合します:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>Get-Content .\SHA256SUMS.txt | ForEach-Object { $hash, $name = $_ -split '\s+', 2; if ((Get-FileHash -LiteralPath $name -Algorithm SHA256).Hash.ToLower() -ne $hash) { throw "不一致: $name" } }; 'OK'</code></pre></div></div>
+          <div class="card ubuntu"><h3>Ubuntu</h3><p>署名がある場合（<code>SHA256SUMS.txt.sig</code>）:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>ssh-keygen -Y verify -f allowed_signers -I bridge-maintainer \
+  -n chatgpt-project-bridge-bundle -s SHA256SUMS.txt.sig &lt; SHA256SUMS.txt</code></pre></div><p>署名がない場合は指紋を比べます:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>sha256sum SHA256SUMS.txt</code></pre></div><p>どちらの場合も、各ファイルを一覧と照合します:</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>sha256sum -c SHA256SUMS.txt</code></pre></div></div>
+        </div>
+        <p>インストーラーは最初に「署名または指紋の照合は済みましたか」と確認します。照合済みで確認を省く場合は <code>-Verified</code>／<code>--verified</code> を付けます。</p>
+      </section>
+
+      <section id="windows" class="windows-panel">
+        <h2><span class="badge windows">Windows</span> 4. Windowsへインストール</h2>
+        <div class="step" data-step="1"><h3>Windows Bundleをコピーして照合する</h3><p><code>install.ps1</code>、Skill ZIP、<code>SHA256SUMS.txt</code>、<code>VERSION.txt</code>（署名した場合は <code>SHA256SUMS.txt.sig</code> も）を同じフォルダーに保ち、<a href="#preverify">3. 実行前の照合</a>を行います。</p></div>
+        <div class="step" data-step="2"><h3>Windows PowerShell 5.1から1コマンドで導入する</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1</code></pre></div><p>依存物を取得する前にSkill ZIPを照合し、ZIP内の <code>dependencies.lock.json</code> を読みます。不足時だけPowerShell 7とGitを正確なwinget IDで、Node.js LTSはロックで固定した版で導入します。Tunnel Clientはロックで固定した版だけを取得し、固定したSHA-256と必須CLI flagを検証します。管理画面（GUI）用のランチャー <code>chatgpt-project-bridge-gui</code> と、スタートメニューのショートカット「ChatGPT Project Bridge」も作ります。</p></div>
+        <div class="step" data-step="3"><h3>プロジェクトを承認付きで追加する</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-add `
+  -ProjectRoot 'E:\work\MyProject' `
+  -ProjectName 'MyProject' `
+  -TunnelId 'tunnel_0123456789abcdef0123456789abcdef'</code></pre></div><p>scaffoldと自己試験の後、公開範囲（ファイル、ディレクトリ、拒否ディレクトリ、Gitの公開設定）と指紋を表示し、承認後にだけprofile設定へ進みます。承認は <code>%APPDATA%\chatgpt-project-bridge\approvals</code> に保存されます。設定成功後にRuntime API Keyを非表示入力し、Doctorを実行します。</p></div>
+        <div class="callout"><strong>Windowsの鍵：</strong>同じWindowsユーザーだけが復号できるDPAPI暗号文です。既存keyは内容を読まず存在だけで再利用し、交換時だけ<code>-ReplaceKey</code>を指定します。</div>
+      </section>
+
+      <section id="ubuntu" class="ubuntu-panel">
+        <h2><span class="badge ubuntu">Ubuntu / WSL</span> 5. Ubuntuへインストール</h2>
+        <div class="step" data-step="1"><h3>Ubuntu Bundleをコピーして照合する</h3><p><code>install.sh</code>、Skill tar.gz、<code>SHA256SUMS.txt</code>、<code>VERSION.txt</code>（署名した場合は <code>SHA256SUMS.txt.sig</code> も）を同じフォルダーに保ち、<a href="#preverify">3. 実行前の照合</a>を行います。</p></div>
+        <div class="step" data-step="2"><h3>1コマンドで導入する</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>bash ./install.sh</code></pre></div><p>Ubuntu LTS 22.04 / 24.04 / 26.04のamd64・arm64に対応します。不足apt packageだけを導入し、既存Node.js 18以上は維持します。無い場合とTunnel Clientは、tar.gz内の <code>dependencies.lock.json</code> で固定した版だけを取得し、固定したSHA-256を照合します。curlはHTTPS以外への接続とリダイレクトを拒否します。PATHは管理marker付きで<code>~/.profile</code>へ重複なく設定します。管理画面（GUI）用のランチャー <code>chatgpt-project-bridge-gui</code> とアプリメニューの項目も作りますが、GUIに必要な <code>python3-gi</code> と <code>gir1.2-gtk-3.0</code> は自動では入れません（不足していれば警告だけを出します）。インストーラーの中のPythonは <code>python3 -I</code> で動かし、実行したフォルダー（Bundleフォルダー）に置かれた偽のモジュールを読みません。アプリメニューの項目（<code>.desktop</code>）は、置き場かエントリがsymlinkのときは作らず、警告を出して続けます。相対パスの <code>XDG_DATA_HOME</code> は無視します。</p></div>
+        <div class="step" data-step="3"><h3>プロジェクトを承認付きで追加する</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-add \
+  --project-root "$HOME/work/MyProject" \
+  --project-name MyProject \
+  --tunnel-id tunnel_0123456789abcdef0123456789abcdef</code></pre></div><p>同じTunnel/profileは再利用し、別rootまたは別Tunnelはkey入力より前に拒否します。公開範囲の承認は <code>~/.config/chatgpt-project-bridge/approvals/</code>（<code>0600</code>）に保存されます。</p></div>
+        <div class="callout warn"><strong>Ubuntuの鍵：</strong><code>~/.config/tunnel-client/secrets/</code>以下へmode <code>0600</code>で保存され、YAMLには<code>file:/path</code>参照だけが入ります。暗号化されないため別PCへコピーしません。</div>
+        <div class="step" data-step="5"><h3>WSLを使う場合</h3><ul><li>Windowsパスではなく、Ubuntuから見える`/home/...`または`/mnt/c/...`を指定します。</li><li>`tunnel-client`もNode.jsもWSL内のLinux版を使います。</li><li>`Start`を実行したWSL端末を閉じるとTunnelも停止します。</li></ul></div>
+      </section>
+
+      <section id="chatgpt">
+        <h2><span class="badge common">共通</span> 6. OpenAI・ChatGPT側の設定</h2>
+        <div class="step" data-step="1"><h3>OpenAI PlatformでTunnelを作る</h3><p><a href="https://platform.openai.com/settings/organization/tunnels">Tunnel settings</a>で新規Tunnelを作成し、対象のPlatform organizationとChatGPT workspaceを関連付けます。表示された`tunnel_id`をコピーします。</p></div>
+        <div class="step" data-step="2"><h3>Runtime API Keyを作る</h3><p><a href="https://platform.openai.com/settings/organization/api-keys">API Keys</a>でTunnel Client用の制限付きキーを作成します。コマンドラインや設定YAMLへ直接貼り付けず、`SaveKey`／`save-key`の非表示入力だけで渡します。</p></div>
+        <div class="step" data-step="3"><h3>ローカルTunnelを起動したままにする</h3><p>`Doctor`が成功した後に`Start`を実行し、端末を開いたままにします。ChatGPTによるツール検出と実行には稼働中のTunnel Clientが必要です。</p></div>
+        <div class="step" data-step="4"><h3>ChatGPTへAppを登録する</h3><p><a href="https://chatgpt.com/plugins">ChatGPT Plugins</a>または<a href="https://chatgpt.com/#settings/Connectors">接続設定</a>を開き、＋ボタンから開発者モードAppを作成します。</p><table><tbody>
+          <tr><th>Connection</th><td><strong>Tunnel</strong></td></tr><tr><th>Tunnel</th><td>作成したTunnelを選択、または同じ`tunnel_id`を入力</td></tr><tr><th>Authentication</th><td><strong>None</strong>（この読み取り専用MCP自体はOAuthを実装しません）</td></tr><tr><th>Scan Tools</th><td>8ツールが表示されることを確認</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section id="daily">
+        <h2>7. 毎日の使い方</h2>
+        <p><code>Start</code>／<code>start</code> は起動前に公開範囲の承認を確認します。<code>.chatgpt-project-bridge.json</code> が変わっていれば、変更点を表示して承認を求めます。承認されるまで、ChatGPTからのツール呼び出しはすべて拒否されます。</p>
+        <div class="os-grid">
+          <div class="card windows"><h3>Windows</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge -Action Update -ProjectRoot 'E:\work\MyProject'
+chatgpt-project-bridge -Action Start  -ProjectRoot 'E:\work\MyProject'</code></pre></div></div>
+          <div class="card ubuntu"><h3>Ubuntu</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge update --project-root "$HOME/work/MyProject"
+chatgpt-project-bridge start  --project-root "$HOME/work/MyProject"</code></pre></div></div>
+        </div>
+        <p>ChatGPTの新しいチャットでAppを選択し、次のように依頼します。</p>
+        <div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>MyProjectの接続を使って、get_project_context と get_project_status を実行してください。
+取得した文書の更新日時、現在のGitブランチ、現在状態を要約してください。
+ツールを呼べなかった場合は推測せず、その理由を教えてください。</code></pre></div>
+      </section>
+
+      <section id="hub">
+        <h2><span class="badge common">共通</span> 7-2. 複数プロジェクトを1つにまとめる（ハブ方式）</h2>
+        <p class="lead">同じPCの複数プロジェクトを、<strong>PCごとに1つ</strong>の Tunnel・ChatGPT App・Runtime API Key で公開できます。プロジェクトが増えても、作り足す必要はありません。</p>
+        <div class="os-grid">
+          <div class="card windows"><h3>Windows</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-hub-add -ProjectRoot 'E:\work\ProjectA' -TunnelId 'tunnel_...'
+chatgpt-hub-add -ProjectRoot 'E:\work\ProjectB'</code></pre></div></div>
+          <div class="card ubuntu"><h3>Ubuntu</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-hub-add --project-root "$HOME/work/ProjectA" --tunnel-id tunnel_...
+chatgpt-hub-add --project-root "$HOME/work/ProjectB"</code></pre></div></div>
+        </div>
+        <ul class="checklist"><li>1つ目: 公開範囲の承認 → ハブへ登録 → Tunnel ID → プロファイル生成 → Runtime API Key → doctor → 起動。このPC用に Tunnel・キー・App を1つずつ作る。</li><li>2つ目以降: 公開範囲の承認 → ハブへ登録だけ。Tunnel・キー・App には触れず、起動中のハブに再起動なしで反映される。</li><li>ChatGPT では最初に <code>list_projects</code> を呼び、各ツールの <code>project</code> 引数でプロジェクトを指定する。</li><li>管理: <code>HubList</code>／<code>hub-list</code>、<code>HubStart</code>／<code>hub-start</code>、<code>HubStop</code>／<code>hub-stop</code>、<code>HubRestart</code>／<code>hub-restart</code>、<code>HubDoctor</code>、<code>HubStatus</code>、<code>HubRemove -HubName 名前</code>。どれも <code>chatgpt-project-bridge</code> に続けて指定する（例: <code>chatgpt-project-bridge hub-start</code>）。</li><li>ChatGPT がプロジェクトを読む時点で、ハブが起動している必要がある。プラグインの作成も、ハブの起動中に行う。</li><li>自動起動（任意）: <code>HubServiceInstall</code>／<code>hub-service-install</code> で、サインイン時にハブを起動する。解除は <code>HubServiceUninstall</code>／<code>hub-service-uninstall</code>。未承認のプロジェクトは公開しないまま起動する。Windows はサインイン時に起動するため、自動サインインを設定していなければ、再起動後に人がサインインするまで起動しない。Ubuntu は linger も有効にするので、ログインしていないときも起動して公開が続く。登録の状態は <code>HubStatus</code>・<code>HubDoctor</code>／<code>hub-doctor</code> とインストーラーが表示する（自動では登録しない）。</li><li>通知: ハブの起動時と、ChatGPT からのアクセス時にデスクトップ通知を出す（同じプロジェクトは60秒に1回まで）。すべてのアクセスは <code>access.log</code>（Windows は <code>%APPDATA%\chatgpt-project-bridge</code>、Ubuntu は <code>~/.local/state/chatgpt-project-bridge</code>）に記録する。</li></ul>
+        <div class="callout warn"><strong>制約：</strong>1つの Tunnel ID で同時に動かせる Tunnel Client は1台だけです（OpenAI の tunnel-client README に明記）。複数PCで同じ Tunnel を同時に使わず、PCごとにハブを作ってください。</div>
+        <div class="callout danger"><strong>注意：</strong>App を使えるチャットからは、承認済みの全プロジェクトが読めます。ある文書に紛れた指示で、別プロジェクトを読むよう誘導されることがあります。機密度の違うプロジェクトは、従来方式（<code>chatgpt-project-add</code>）で別の Tunnel・App に分けてください。ハブを止めると全プロジェクトが止まります。同じプロジェクトをハブ方式と従来方式で同時に起動しないでください。</div>
+      </section>
+
+      <section id="gui">
+        <h2><span class="badge common">共通</span> 7-3. 管理画面（GUI）で操作する</h2>
+        <p class="lead">コマンドを覚えなくても、全ての操作を画面から実行できます。ボタンや入力欄にマウスを載せると、何をするか・いつ使うか・注意点が日本語で出ます。画面は既存のコマンドを呼ぶだけで、承認・キー・上書きの安全確認は変わりません。</p>
+        <div class="os-grid">
+          <div class="card windows"><h3>Windows</h3><p>スタートメニューの「ChatGPT Project Bridge」、または次のコマンドで開きます。</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge-gui</code></pre></div><p class="fine">PowerShell 7 と WinForms を使います。<strong>Windows 版の画面は、実機での確認が済むまで未検証です</strong>（手順は <code>references/gui-windows-check.md</code>）。</p></div>
+          <div class="card ubuntu"><h3>Ubuntu</h3><p>アプリメニューの「ChatGPT Project Bridge 管理画面」、または次のコマンドで開きます。</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge-gui</code></pre></div><p class="fine">初回だけ、次のパッケージが必要です。インストーラーは自動では入れません。</p><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>sudo apt install python3-gi gir1.2-gtk-3.0</code></pre></div></div>
+        </div>
+        <div class="step" data-step="1"><h3>プロジェクトを追加する</h3><p>「かんたん」タブで「プロジェクトのフォルダー」を指定し、「プロジェクトを追加」を押します。設定ファイルがまだ無いときは「プロジェクト名」も入力します。「Tunnel ID」（ハブに記録済みのもの）と「Tunnel Client の場所」は、分かっていれば起動時に入っています（入力済みの値は書き換えません）。足場（設定ファイルと文書 2 つ）は、無ければ自動で作られます。</p></div>
+        <div class="step" data-step="2"><h3>公開範囲を読んで承認する</h3><p>確認ダイアログは、上から次の順に並びます。<strong>固定の見出し</strong>（承認状態・プロジェクトルート・プロファイル・ハブの警告）、<strong>スクロールする詳細</strong>（1項目1行・番号つき・引用符つき・全件）、<strong>固定の要約</strong>（件数・Gitの公開の有無・指紋64桁）、「内容を読みました」、「この内容で承認」です。「内容を読みました」は、詳細を末尾までスクロールするとチェックできます（全部収まる短い内容なら最初から）。チェックするまで「この内容で承認」は押せず、既定のボタンは「キャンセル」です。承認しなければ何も実行されず、そのプロジェクトは公開されません。</p></div>
+        <div class="step" data-step="3"><h3>キーは別の端末窓に入力する</h3><p>別の端末窓（Windows は別のコンソール窓）が開き、コマンドが自動で実行されます。Runtime API Key を求められたら、<strong>その窓に貼り付けます</strong>。画面には入力しません。窓はコマンドを1回だけ実行し、終了コードを表示してEnterキーを待ちます（対話のプロンプトは残りません）。結果を読んでEnterキーで閉じ、「一覧を更新」を押します。</p></div>
+        <div class="step" data-step="4"><h3>ハブを起動する</h3><p>「ハブを起動」を押します。未承認のプロジェクトがあれば、起動の前に承認ダイアログが出ます。起動すると、画面の上部の「ハブ」の表示が <code>ハブ: ● 実行中（PID …）</code> になります（3 秒ごとに調べます。示すのは Tunnel Client のプロセスの有無だけで、この画面の外で起動したハブも表示します）。ChatGPT から読ませている間は、画面を開いたままにします（<strong>画面を閉じると、画面から起動したハブは止まります</strong>）。強制終了（SIGKILL）や画面のクラッシュでは止まらず、ハブが残ることがあります。そのときは画面を開き直し、上部の「ハブ」の表示か「ハブの稼働状態」で確かめて、残っていれば「ハブを停止」を押します。</p></div>
+        <div class="callout danger"><strong>承認：</strong>表示された公開範囲を読まずに承認しないでください。画面が指紋をコマンドへ渡すのは、チェックして「この内容で承認」を押したときだけです。</div>
+        <div class="callout danger"><strong>「承認できません」（赤字）：</strong>設定に制御文字・行区切り・双方向制御文字・不可視文字があると、赤字で理由と該当項目が出て、承認ボタンは常に押せません（公開範囲の確認の段階でサーバーが拒否し、ログにメッセージが出る場合もあります）。偽装の可能性があります。ファイルやフォルダーの名前を直してから、やり直します。</div>
+        <div class="callout danger"><strong>別のフォルダーの承認を上書きするとき：</strong>同じプロファイル名で別のフォルダーが承認済みだと、赤字の警告と、追加のチェックが出ます。取り違えや設定の偽装でないかを確かめてから承認します。</div>
+        <div class="callout warn"><strong>他人から受け取ったプロジェクト：</strong>承認ダイアログを最後まで読み、赤字の警告が出たら承認しません。<code>.git</code> ごと配られたものを疑ってください。<code>.git/config</code> に実行を伴いうる設定があると、Gitの情報（ブランチ・変更の件数・コミット件名）の取得だけが止まります。</div>
+        <div class="callout warn"><strong>上書き系：</strong>「上書きを許可（force）」「プロファイルを作り直す」「キーを置き換える」は既定でオフです。オンにするたびに確認が出ます。</div>
+        <div class="callout verify"><strong>成功表示：</strong>画面の「CLI の処理は成功しました」は、コマンドの終了コードが 0 だったことだけを表します。ChatGPT 側の確認（Tool Scan と End-to-End）は別の段階です（<a href="#verify">10. 「接続完了」の判定</a>）。</div>
+      </section>
+
+      <section id="migration">
+        <h2>8. 別PC・別プロジェクトへ移す</h2>
+        <table><thead><tr><th>対象</th><th>コピーする</th><th>コピーしない／再設定する</th></tr></thead><tbody>
+          <tr><td>スキル</td><td>ExportBundleで作った対象OSフォルダー</td><td>archiveだけを抜き出さずinstall、SHA256SUMS.txt、VERSION.txt、署名も一緒にコピー。指紋と公開鍵は別経路で伝える</td></tr>
+          <tr><td>プロジェクト</td><td>`.chatgpt-project-bridge.json`、Context、Status</td><td>絶対パスとhealth portは`ConfigureTunnel`で再生成</td></tr>
+          <tr><td>公開範囲の承認</td><td><strong>コピーしない</strong></td><td>移行先PCで表示内容を確認して承認し直す</td></tr>
+          <tr><td>API Key</td><td><strong>コピーしない</strong></td><td>移行先PCで`SaveKey`／`save-key`を再実行</td></tr>
+          <tr><td>Tunnel</td><td>旧PCを停止して置換する場合だけ同じ`tunnel_id`を利用可能</td><td>2台同時稼働、または別プロジェクトは別Tunnel推奨</td></tr>
+        </tbody></table>
+        <div class="card-grid" style="margin-top:18px">
+          <div class="card windows"><h3>Windowsから両OS Bundleを作る</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge -Action ExportBundle `
+  -OutputPath 'D:\Transfer\ChatGPT' -Force `
+  -SigningKey "$env:USERPROFILE\.ssh\id_ed25519"</code></pre></div></div>
+          <div class="card ubuntu"><h3>Ubuntuから両OS Bundleを作る</h3><div class="code-wrap"><button class="copy" type="button">コピー</button><pre><code>chatgpt-project-bridge export-bundle \
+  --output-path "$HOME/Transfer/ChatGPT" --force \
+  --signing-key "$HOME/.ssh/id_ed25519"</code></pre></div></div>
+        </div>
+        <p><code>SHA256SUMS.txt</code> にはarchive、installer、<code>VERSION.txt</code> が入ります。署名鍵を指定すると <code>SHA256SUMS.txt.sig</code> を作り、最後に各OSの指紋を表示します。</p>
+        <div class="callout warn"><strong>依存物の版を上げるとき（保守者）：</strong>Skillのソース上で <code>UpdateLock</code>／<code>update-lock</code> を実行し、表示された版とSHA-256の差分を確認してからBundleを作り直します。導入先は「最新版」を取りに行きません。Tunnel Clientは、リリースに付いているSLSA来歴証明を GitHub CLI（<code>gh attestation verify</code>）で検証し、<code>openai/tunnel-client</code> の <code>release.yml</code> がそのタグとコミットからビルドしたと確認できた版だけを固定します。保守者のPCに <code>gh</code> が必要です（導入先には不要）。Node.jsはwingetに登録済みの版を選びます。</div>
+        <div class="callout warn"><strong>2.0.0からの移行：</strong>2.0.0で作ったTunnel profileは承認ファイルを渡さないため拒否されます。プロジェクトごとに一度だけ、同じTunnel IDで <code>chatgpt-project-add</code> に <code>-ForceReconfigure</code>／<code>--force-reconfigure</code> を付けて実行し、profileを再生成して承認してください。</div>
+        <div class="callout"><strong>後方互換：</strong>単一ZIPまたはtar.gzだけが必要な場合は<code>ExportSkill</code>／<code>export-skill</code>を引き続き利用できます。</div>
+      </section>
+
+      <section id="security">
+        <h2>9. 公開範囲と鍵の安全確認</h2>
+        <ul class="checklist"><li>既定公開は`CHATGPT_PROJECT_CONTEXT.md`、`CHATGPT_PROJECT_STATUS.md`、ルート`README.md`だけ。</li><li>`.git`、`.codex`、`.claude`、`Prompts`、`Documents`、`Saved`、build出力は既定で拒否。</li><li>公開範囲の承認はプロジェクトの外に保存され、設定が変わると承認し直すまで全ツールが拒否される。</li><li>Gitのファイル名とコミット件名は既定で非公開（`gitExposure.paths`／`gitExposure.commitSubjects` が `false`）。有効にしても拒否ディレクトリ配下と機微な名前は返さない。</li><li>`.env*`、`*.pem`、`*.key`、`id_rsa*`、名前に`credential`／`secret`を含むもの、`.git`／`.ssh`／`.aws`などの配下、バイナリは、許可リストに入れても公開しない。</li><li>公開文書内の秘密鍵ブロック、トークン、JWT、URL内のパスワード、`password: …`の値は伏せ字にする（最後の防御）。</li><li>API Keyをプロジェクト、Git、YAML、コマンド引数、チャットへ貼らない。</li><li>Ubuntuでは文書を読むたびに、外部symlink、hardlink、プロジェクト内の別mount境界を拒否。</li><li>設定の項目やフォルダーのパスに制御文字・行区切り・双方向制御文字・不可視文字（ZWNJなどの書式文字を含む）があると、設定全体を拒否する（サーバー・コマンド・画面とも）。パスは、区切りごとの末尾の <code>.</code> と空白、<code>:</code>（Windowsは8.3短縮名も）も拒否する。</li><li>プロジェクトの <code>.git/config</code>（local・worktree）に、実行を伴いうる設定（<code>core.fsmonitor</code>、<code>core.hooksPath</code>、<code>filter.*</code> のコマンドなど）があると、Gitの情報だけを取得しない（文書の公開は続く）。Git LFS の標準の設定値は例外。</li><li>MCPサーバーは、承認ファイルが、symlink・自分の所有でない・group/otherに書き込み権がある場合や、その置き場所のディレクトリが同じ状態のときは、未承認として扱う（Windowsは symlink の拒否だけで、ACLは検査しない）。</li><li>許可ディレクトリを追加するときは、ChatGPTへ見せてよいMarkdownだけが入っていることを確認。</li></ul>
+        <div class="callout danger"><strong>禁止：</strong>公開範囲を簡単に広げる目的でプロジェクト全体やソースツリーを許可しないでください。表示された公開範囲を読まずに承認したり、<code>-ExposureSha256</code>／<code>--exposure-sha256</code> で承認を自動化したりしないでください。設定変更後は必ず`Test`／`test`を再実行します。</div>
+        <div class="callout warn"><strong>限界：</strong>承認ファイルは、同じユーザー権限で動いているソフトウェアによる書き換えまでは防げません。</div>
+      </section>
+
+      <section id="verify">
+        <h2><span class="badge verify">検証</span> 10. 「接続完了」の判定</h2><p>次は別々の確認段階です。最後まで成功して初めてChatGPTとの実接続完了です。</p>
+        <div class="status-gates"><div class="gate"><span>1</span><strong>Scaffold</strong><div>設定・Context・Statusが作成された。</div></div><div class="gate"><span>2</span><strong>Local Test</strong><div>8ツール、公開境界の自己試験、境界試験がすべてPASS。</div></div><div class="gate"><span>3</span><strong>Approval</strong><div>現在の公開範囲が承認済み（指紋が一致）。</div></div><div class="gate"><span>4</span><strong>Doctor</strong><div>Tunnel profile、鍵参照、stdio commandが正常。</div></div><div class="gate"><span>5</span><strong>Running</strong><div>Tunnel Clientがhealthy／readyでpolling中。</div></div><div class="gate"><span>6</span><strong>Tool Scan</strong><div>ChatGPT App作成画面で8ツールを検出。</div></div><div class="gate"><span>7</span><strong>End-to-End</strong><div>ChatGPTが`get_project_context`等を実際に呼び、現在のデータを返した。これが最終合格。</div></div></div>
+      </section>
+
+      <section id="trouble">
+        <h2>11. トラブル診断</h2>
+        <table><thead><tr><th>症状</th><th>確認すること</th></tr></thead><tbody>
+          <tr><td>ChatGPT で「MCP アプリを作成できませんでした」</td><td>Tunnel Client が起動していない。<code>chatgpt-project-add</code>／<code>chatgpt-hub-add</code> が Runtime API Key の入力待ちで止まっていないか確認し、<code>status</code>／<code>hub-status</code> で <code>ready: true</code> になってから「作成」を押す。</td></tr>
+          <tr><td>同じPCで2つ目のプロジェクトを追加したい</td><td>同じ Tunnel ID で <code>chatgpt-project-add</code> を2回使わない（1つの Tunnel で動かせる Tunnel Client は1つだけ）。<code>chatgpt-hub-add</code> を使う。</td></tr>
+          <tr><td>Ubuntu で通知が出ない</td><td><code>notify-send</code> が無い。<code>sudo apt install libnotify-bin</code> を実行する。アクセスは通知が無くても <code>access.log</code> に記録される。</td></tr>
+          <tr><td>`公開範囲がまだ承認されていません`／`承認時から変わっています`</td><td>`Approve`／`approve` または `Start`／`start` で表示内容を確認して承認。</td></tr>
+          <tr><td>承認ダイアログの「承認できません」、または `公開範囲の設定に使えない文字が含まれています`</td><td>メッセージの「項目名 = "値"」の項目に、使えない文字（見えない文字は <code>\uXXXX</code> の形で出る）か、末尾が <code>.</code>／空白の名前、<code>:</code> を含む名前がある。ファイルやフォルダーの名前を変えてから、もう一度実行する。心当たりのない文字なら、そのプロジェクトを疑う。</td></tr>
+          <tr><td>`Git の情報を取得しません: .git/config に実行を伴いうる設定があります: キー名`</td><td>プロジェクトの <code>.git/config</code> にある、そのキーを確かめる（心当たりがなければ消す）。直せば次の呼び出しから戻る。他人から受け取ったプロジェクトなら、<code>.git</code> ごと配られたものを疑う。</td></tr>
+          <tr><td>`2.0.0で作成`／`承認ファイルが指定されていません`</td><td>同じTunnel IDで `chatgpt-project-add` に `-ForceReconfigure`／`--force-reconfigure` を付けて再実行。</td></tr>
+          <tr><td>`SHA-256がロックの値と一致しません`</td><td>ダウンロードが壊れたか、配布元のファイルが変わった。再実行しても同じなら導入を止め、保守者に連絡。</td></tr>
+          <tr><td>`照合が済んでいないため中止しました`</td><td><a href="#preverify">3. 実行前の照合</a>を行ってから再実行。</td></tr>
+          <tr><td>`Bundle archiveがありません`</td><td>Skillのソース（リポジトリ）の <code>scripts</code> にあるインストーラーを直接実行したか、Bundleのフォルダーの一部だけをコピーした。<code>ExportBundle</code>／<code>export-bundle</code> でBundleを作り、対象OSのフォルダーを丸ごとコピーして、その中の <code>install.ps1</code>／<code>install.sh</code> を実行する。この表示は照合の確認より前に出て、何も変更しない。</td></tr>
+          <tr><td>winget の Node.js 版が見つからない</td><td>保守者が `UpdateLock -NodeVersion` でwingetにある版を固定し直す。</td></tr>
+          <tr><td>TunnelがChatGPTに出ない</td><td>Tunnelに対象ChatGPT workspaceが関連付いているか、Tunnels Read + Use権限があるか確認。</td></tr>
+          <tr><td>Tool Scanが失敗</td><td>`Start`／`start`が動作中か確認し、`Doctor`／`doctor`を再実行。</td></tr>
+          <tr><td>Ubuntuで`node`がない</td><td>`bash scripts/install-ubuntu.sh`を再実行し、`export PATH="$HOME/.local/bin:$PATH"`を設定。</td></tr>
+          <tr><td>Ubuntuでkey fileエラー</td><td>`save-key`を再実行。秘密フォルダーは`0700`、keyは`0600`、所有者は現在ユーザーである必要があります。</td></tr>
+          <tr><td>`bridge設定は既にあります`</td><td>既存設定を確認。意図的に置換するときだけ`--force`／`-Force`を使う。</td></tr>
+          <tr><td>`公開対象外の文書`</td><td>`.chatgpt-project-bridge.json`のallowlistとdenyDirectoriesを確認。秘密文書を安易に追加しない。</td></tr>
+          <tr><td>Ubuntuの別mount境界エラー</td><td>許可ディレクトリ内のbind mountを外すか、公開対象を通常ファイルとして安全な場所へコピー。</td></tr>
+        </tbody></table>
+        <div class="callout verify"><strong>状態確認：</strong>Windowsは<code>-Action Status</code>、Ubuntuは<code>status</code>を使用します。停止中の場合に非ゼロ終了するのは正常です。</div>
+      </section>
+
+      <footer>ChatGPT Project Bridge — 読み取り専用MCP / Windows・Ubuntu対応<br>OpenAI公式情報：<a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels">Secure MCP Tunnel</a></footer>
+    </main>
+  </div>
+  <script>
+    document.querySelectorAll('.copy').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const code = button.parentElement.querySelector('code').innerText;
+        try { await navigator.clipboard.writeText(code); button.textContent = 'コピー済み'; }
+        catch { const range = document.createRange(); range.selectNodeContents(button.parentElement.querySelector('code')); const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range); button.textContent = '選択済み'; }
+        window.setTimeout(() => { button.textContent = 'コピー'; }, 1600);
+      });
+    });
+  </script>
+</body>
+</html>
