@@ -44,20 +44,18 @@ This bridge turns that around: ChatGPT asks for exactly what it needs, through n
 ## Architecture
 
 ```mermaid
-flowchart LR
-  subgraph cloud["OpenAI"]
-    chat["ChatGPT app<br/>(developer mode)"] --> tunnel["Secure MCP Tunnel"]
-  end
+flowchart TB
+  chat["ChatGPT app (developer mode)"] --> tunnel["OpenAI Secure MCP Tunnel"]
+  tunnel <-->|"outbound HTTPS only, no open ports"| client
   subgraph pc["Your PC (Windows or Ubuntu)"]
     client["tunnel-client<br/>(pinned, provenance-checked)"] --> server["server.mjs<br/>MCP server, hub mode"]
-    server --> gate{"exposure fingerprint<br/>matches approval?"}
-    gate -->|"allowlist, deny list,<br/>secret masking"| projectA[("Project A")]
+    server --> gate{"exposure fingerprint<br/>matches the approval?"}
+    gate -->|"allowlist, deny list, secret masking"| projectA[("Project A")]
     gate --> projectB[("Project B")]
-    server --> runner["claude-job-runner.mjs"] --> claude["claude -p<br/>dontAsk, allowlisted commands"]
+    server --> runner["claude-job-runner.mjs"] --> claude["claude -p<br/>(dontAsk, allowlisted commands)"]
     claude -. "edits the working tree" .-> projectA
     gui["Admin GUI and CLI"] -. "writes config and approval" .-> gate
   end
-  client <-->|"outbound HTTPS only"| tunnel
 ```
 
 - The Tunnel Client keeps an outbound connection to OpenAI, so no router port is opened and the MCP server is never exposed to the internet.
