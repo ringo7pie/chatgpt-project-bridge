@@ -1104,7 +1104,18 @@ def ps_auto_fill_allowed(current: str, candidate: str, last_filled: str) -> bool
     return current == last_filled
 
 
+def use_safe_output() -> None:
+    """出力先の文字コードで日本語を書けないとき（英語版 Windows の cp1252 へのリダイレクトなど）、落ちずに逃がし文字で書く。"""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            "日本語".encode(stream.encoding or "ascii")
+        except (LookupError, UnicodeEncodeError):
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(errors="backslashreplace")
+
+
 def main() -> int:
+    use_safe_output()
     report = Report()
 
     # 1. 存在・文字コード・先頭の宣言。

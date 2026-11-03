@@ -760,3 +760,4 @@ Windows 11・Node.js 24.19.0・Python 3.14.7 で、Windows で実行できる自
 
 - 承認の指紋: このリポジトリの `server.mjs --print-exposure` の `sha256` の先頭は `806e760d` のまま（設定は変えていない）。
 - Linux の自己試験は、GitHub Actions の CI（Ubuntu の Node.js 20・24）で実行する。
+- CI で見つけて直した問題: `gui-selftest-windows-static.py` は、出力先の文字コードが日本語を書けないとき（GitHub Actions の Windows の runner では、リダイレクトした標準出力が cp1252）、最初の `print` で `UnicodeEncodeError` になって落ちた。書けないときだけ、逃がし文字（`\uXXXX`）で書くようにした（英語版の Windows で実行する利用者にも同じ問題があった）。この PC で `PYTHONIOENCODING=cp1252` にして 25 PASS を確かめた。
